@@ -38,7 +38,7 @@ public interface ChambreRepository extends CrudRepository<Chambre, Long> {
 
     List<Chambre> findByBlocFoyerCapaciteFoyerGreaterThan(long value);
 
-    Chambre findByReservationsIdReservation(String reservations_idReservation);
+    Chambre findByReservationsIdReservation(String reservationsidReservation);
 
     List<Chambre> findByBlocFoyerUniversiteNomUniversiteLike(String nomUni);
 
