@@ -18,10 +18,13 @@
     </properties>
     <distributionManagement>
         <repository>
-            <id>deploymentRepo</id>
-            <name>Nexus Repository</name>
-            <url>http://localhost:8081/repository/maven-releases/</url>
+            <id>nexus</id>
+            <url>http://192.168.1.26:8081/repository/maven-releases/</url>
         </repository>
+        <snapshotRepository>
+            <id>nexus</id>
+            <url>http://192.168.1.26:8081/repository/maven-snapshots/</url>
+        </snapshotRepository>
     </distributionManagement>
     <dependencies>
         <dependency>
