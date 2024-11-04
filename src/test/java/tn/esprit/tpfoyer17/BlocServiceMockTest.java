@@ -94,15 +94,23 @@ public class BlocServiceMockTest {
     // Test for removeBloc(long idBloc)
     @Test
     void testRemoveBloc() {
-        Bloc bloc = Bloc.builder().idBloc(1L).nomBloc("Bloc E").capaciteBloc(200).build();
+        // Mock the Bloc to be returned by findById()
+        Bloc bloc = Bloc.builder().idBloc(1L).nomBloc("Bloc A").capaciteBloc(100).build();
+        when(blocRepository.findById(1L)).thenReturn(Optional.of(bloc)); // Mock findById() to return a Bloc
 
-        // No need to mock deleteById as it returns void, just verify if it was called
+        // Mock the behavior of deleteById (no actual delete happening in the test)
         doNothing().when(blocRepository).deleteById(1L);
 
+        // Call the service method
         blocService.removeBloc(1L);
 
-        verify(blocRepository, times(1)).deleteById(1L); // Verify deleteById was called once
+        // Verify that findById() was called once
+        verify(blocRepository, times(1)).findById(1L);
+
+        // Verify that deleteById() was called once
+        verify(blocRepository, times(1)).deleteById(1L);
     }
+
 
     // Test for findByFoyerIdFoyer(long idFoyer)
     @Test

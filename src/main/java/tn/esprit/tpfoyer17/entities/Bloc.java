@@ -37,6 +37,8 @@ public class Bloc implements Serializable {
     @ToString.Exclude
     @JsonIgnore
     @OneToMany(mappedBy = "bloc")
+//    @OneToMany(mappedBy = "bloc", cascade = CascadeType.REMOVE, orphanRemoval = true)
+
     Set<Chambre> chambres;
 
 

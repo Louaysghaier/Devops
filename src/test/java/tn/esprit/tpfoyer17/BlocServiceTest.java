@@ -6,8 +6,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import tn.esprit.tpfoyer17.entities.Bloc;
+import tn.esprit.tpfoyer17.entities.Chambre;
 import tn.esprit.tpfoyer17.entities.Foyer;
+import tn.esprit.tpfoyer17.services.impementations.FoyerService;
 import tn.esprit.tpfoyer17.services.interfaces.IBlocService;
+import tn.esprit.tpfoyer17.services.interfaces.IChambreService;
+import tn.esprit.tpfoyer17.services.interfaces.IFoyerService;
 
 import java.util.List;
 
@@ -18,6 +22,10 @@ public class BlocServiceTest {
 
     @Autowired
     IBlocService blocService;
+    @Autowired
+    IFoyerService foyerService;
+    @Autowired
+    IChambreService chambreService;
 
     // Test for addBloc()
     @Test
@@ -93,10 +101,10 @@ public class BlocServiceTest {
     // Test for findByFoyerIdFoyer(long idFoyer)
     @Test
     public void testFindByFoyerIdFoyer() {
-        Foyer foyer = Foyer.builder().nomFoyer("Foyer 1").build(); // Créez un objet foyer fictif
+        Foyer foyer = Foyer.builder().nomFoyer("Foyer 1").build();
+        foyerService.addFoyer(foyer);
         Bloc bloc1 = Bloc.builder().nomBloc("Bloc F1").capaciteBloc(50).foyer(foyer).build();
         Bloc bloc2 = Bloc.builder().nomBloc("Bloc F2").capaciteBloc(75).foyer(foyer).build();
-
         blocService.addBloc(bloc1);
         blocService.addBloc(bloc2);
 
@@ -114,7 +122,12 @@ public class BlocServiceTest {
         Bloc bloc = Bloc.builder().nomBloc("Bloc G").capaciteBloc(300).build();
 
         Bloc savedBloc = blocService.addBloc(bloc);
+        Chambre chambre = new Chambre();
+        chambre.setIdChambre(chambreId); // Set the chambre ID
+        chambre.setBloc(savedBloc);       // Associate the chambre with the saved bloc
 
+        // Save the Chambre (assuming you have a chambreService or repository)
+        chambreService.addChambre(chambre);
         Bloc foundBloc = blocService.findByChambresIdChambre(chambreId);
         Assertions.assertNotNull(foundBloc, "Le Bloc récupéré ne doit pas être null");
         Assertions.assertEquals(savedBloc.getIdBloc(), foundBloc.getIdBloc(), "L'ID du Bloc doit correspondre à celui ajouté");
