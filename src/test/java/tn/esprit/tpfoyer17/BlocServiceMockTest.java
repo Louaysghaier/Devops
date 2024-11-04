@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.mockito.Mockito.when;
-@ExtendWith(MockitoExtension.class)  // Use this for unit tests with mocks
+@ExtendWith(MockitoExtension.class)
 @ActiveProfiles("test")
 public class BlocServiceMockTest {
 
