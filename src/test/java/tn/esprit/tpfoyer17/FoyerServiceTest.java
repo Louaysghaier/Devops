@@ -32,7 +32,7 @@ public class FoyerServiceTest {
     @Autowired
     IBlocService blocService;
 
-    // Test for addFoyer()
+
     @Test
     public void testAddFoyer() {
         Foyer foyer = Foyer.builder().nomFoyer("Foyer A").build();
@@ -46,7 +46,6 @@ public class FoyerServiceTest {
         Assertions.assertNull(deletedFoyer, "Le Foyer doit être null après suppression");
     }
 
-    // Test for retrieveAllFoyers()
     @Test
     public void testRetrieveAllFoyers() {
         Foyer foyer1 = Foyer.builder().nomFoyer("Foyer B").build();

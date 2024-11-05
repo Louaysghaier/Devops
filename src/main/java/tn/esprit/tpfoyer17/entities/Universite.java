@@ -31,5 +31,4 @@ public class Universite implements Serializable {
     @JsonIgnore
     Foyer foyer;
 
-    //ggggg
 }
