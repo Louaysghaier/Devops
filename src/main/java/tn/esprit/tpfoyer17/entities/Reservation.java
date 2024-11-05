@@ -8,6 +8,7 @@ import lombok.experimental.FieldDefaults;
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Set;
 
 @Entity
@@ -31,5 +32,13 @@ public class Reservation implements Serializable {
     @ToString.Exclude
     @ManyToMany
     @JsonIgnore
-    Set<Etudiant> etudiants;
+
+    private Set<Etudiant> etudiants = new HashSet<>(); // Initialize to avoid null
+
+    public Set<Etudiant> getEtudiants() {
+        return etudiants;
+    }
+    public void setEtudiants(Set<Etudiant> etudiants) {
+        this.etudiants = etudiants;
+    }
 }
