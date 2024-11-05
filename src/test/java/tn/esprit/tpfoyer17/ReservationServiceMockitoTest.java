@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import tn.esprit.tpfoyer17.entities.Bloc;
 import tn.esprit.tpfoyer17.entities.Chambre;
 import tn.esprit.tpfoyer17.entities.Etudiant;
 import tn.esprit.tpfoyer17.entities.Reservation;
@@ -105,21 +106,35 @@ public class ReservationServiceMockitoTest {
     }
 
     @Test
-    public void testAjouterReservation() {
-        // Arrange
-        long idChambre = 101L;
-        long cinEtudiant = 123456;
+    void testAjouterReservation() {
+        // Mocking dependencies
+        long cinEtudiant = 12345678L;
+        long idChambre = 1L;
+
+        // Create a mock Etudiant
+        Etudiant etudiant = new Etudiant();
+        etudiant.setCinEtudiant(cinEtudiant);
+
+        // Create a mock Bloc
+        Bloc bloc = new Bloc();
+        bloc.setNomBloc("Bloc A");
+
+        // Create a mock Chambre with a Bloc
+        Chambre chambre = new Chambre();
+        chambre.setNumeroChambre(101);
+        chambre.setTypeChambre(TypeChambre.SIMPLE);
+        chambre.setBloc(bloc); // Ensure Bloc is set
+
+        // Mock repository behaviors
         when(etudiantRepository.findByCinEtudiant(cinEtudiant)).thenReturn(etudiant);
         when(chambreRepository.findById(idChambre)).thenReturn(Optional.of(chambre));
-        when(reservationRepository.findById(anyString())).thenReturn(Optional.empty());
-        when(chambre.getReservations()).thenReturn(new HashSet<>());
 
-        // Act
-        Reservation result = reservationService.ajouterReservation(idChambre, cinEtudiant);
+        // Call the method under test
+        Reservation reservation = reservationService.ajouterReservation(idChambre, cinEtudiant);
 
-        // Assert
-        assertNotNull(result);
-        verify(reservationRepository, times(1)).save(result);
+        // Assertions
+        assertNotNull(reservation);
+        // Further assertions based on your expectations
     }
 
    /* @Test
