@@ -19,6 +19,7 @@ import tn.esprit.tpfoyer17.services.interfaces.IReservationService;
 import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 @Service
@@ -158,36 +159,23 @@ public class ReservationService implements IReservationService {
 */
     @Transactional
     public Reservation ajouterReservation(long idChambre, long cinEtudiant) {
+        Optional<Chambre> optionalChambre = chambreRepository.findById(idChambre);
         Etudiant etudiant = etudiantRepository.findByCinEtudiant(cinEtudiant);
-        if (etudiant == null) {
-            throw new IllegalArgumentException("Etudiant not found for CIN: " + cinEtudiant);
+
+        if (optionalChambre.isPresent() && etudiant != null) {
+            Chambre chambre = optionalChambre.get();
+            // Check if there's space in the chambre
+            if (chambre.getCurrentOccupants() < chambre.getMaxCapacity()) {
+                // Create and save the reservation
+                Reservation reservation = new Reservation();
+                reservation.setChambre(chambre);
+                reservation.setEtudiants((Set<Etudiant>) etudiant);
+                // Save reservation to the repository
+                reservationRepository.save(reservation);
+                return reservation; // Ensure this line is reached
+            }
         }
-
-        Chambre chambre = chambreRepository.findById(idChambre).orElseThrow(
-                () -> new IllegalArgumentException("Chambre not found for ID: " + idChambre));
-
-        String numReservation = generateId(String.valueOf(chambre.getNumeroChambre()),
-                chambre.getBloc().getNomBloc());
-
-        Reservation reservation = reservationRepository.findById(numReservation).orElse(
-                Reservation.builder()
-                        .idReservation(numReservation)
-                        .etudiants(new HashSet<>())
-                        .anneeUniversitaire(LocalDate.now())
-                        .estValide(true)
-                        .build());
-
-        // Check maximum capacity of the room
-        if (reservation.isEstValide()) {
-            chambre.getReservations().add(reservation);
-            reservation.getEtudiants().add(etudiant);
-            reservationRepository.save(reservation);
-        }
-
-        // Set reservation validity based on the type of room
-        updateReservationValidity(reservation, chambre);
-
-        return reservationRepository.save(reservation);
+        return null; // Ensure this is the fallback for invalid cases
     }
     private void updateReservationValidity(Reservation reservation, Chambre chambre) {
         switch (chambre.getTypeChambre()) {
