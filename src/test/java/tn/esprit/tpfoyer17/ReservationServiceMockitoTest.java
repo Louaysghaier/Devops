@@ -108,34 +108,43 @@ public class ReservationServiceMockitoTest {
     @Test
     void testAjouterReservation() {
         long cinEtudiant = 12345678L;
+        String idReservation = "RES123"; // Example ID
         long idChambre = 1L;
 
         // Create a mock Etudiant
         Etudiant etudiant = new Etudiant();
         etudiant.setCinEtudiant(cinEtudiant);
+        etudiant.setNomEtudiant("John");
+        etudiant.setPrenomEtudiant("Doe");
 
         // Create a mock Bloc
         Bloc bloc = new Bloc();
         bloc.setNomBloc("Bloc A");
 
-        // Create a mock Chambre with a Bloc and initialize reservations
+        // Create a mock Chambre
         Chambre chambre = new Chambre();
         chambre.setNumeroChambre(101);
         chambre.setTypeChambre(TypeChambre.SIMPLE);
         chambre.setMaxCapacity(2);
         chambre.setBloc(bloc);
-        chambre.setReservations(new HashSet<>()); // Ensure reservations are initialized
+        chambre.setReservations(new HashSet<>());
+
+        // Create a mock Reservation
+        Reservation reservation = new Reservation();
+        reservation.setIdReservation(idReservation); // Set the ID
+        reservation.setChambre(chambre);
+        reservation.getEtudiants().add(etudiant); // Correctly add the Etudiant to the Set
 
         // Mock repository behaviors
         when(etudiantRepository.findByCinEtudiant(cinEtudiant)).thenReturn(etudiant);
         when(chambreRepository.findById(idChambre)).thenReturn(Optional.of(chambre));
 
         // Call the method under test
-        Reservation reservation = reservationService.ajouterReservation(idChambre, cinEtudiant);
+        Reservation createdReservation = reservationService.ajouterReservation(idChambre, cinEtudiant);
 
         // Assertions
-        assertNotNull(reservation, "Reservation should not be null");
-        // Further assertions based on your expectations
+        assertNotNull(createdReservation, "Reservation should not be null");
+        assertEquals(idReservation, createdReservation.getIdReservation(), "Reservation ID should match");
     }
 
    /* @Test
