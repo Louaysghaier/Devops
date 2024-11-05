@@ -24,7 +24,7 @@ import java.util.Set;
 
 @ExtendWith(MockitoExtension.class)
 @ActiveProfiles("test")
-public class ReservationServiceMockTest {
+public class ReservationServiceMockitoTest {
 
     @Mock
     ReservationRepository reservationRepository;
