@@ -5,9 +5,12 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ActiveProfiles;
 import tn.esprit.tpfoyer17.entities.*;
 import tn.esprit.tpfoyer17.repositories.*;
 import tn.esprit.tpfoyer17.services.impementations.ReservationService;
@@ -16,7 +19,9 @@ import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Optional;
 
-@SpringBootTest
+import static org.mockito.Mockito.when;
+@ExtendWith(MockitoExtension.class)
+@ActiveProfiles("test")
 public class ReservationServiceMockitoTest {
 
     @Mock
@@ -31,7 +36,7 @@ public class ReservationServiceMockitoTest {
     @Mock
     private UniversiteRepository universiteRepository;
 
-    @Autowired
+    @InjectMocks
     private ReservationService reservationService;
 
     private Reservation reservation;
