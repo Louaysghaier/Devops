@@ -8,19 +8,20 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.context.ActiveProfiles;
+import tn.esprit.tpfoyer17.entities.Bloc;
 import tn.esprit.tpfoyer17.entities.Etudiant;
 import tn.esprit.tpfoyer17.entities.Reservation;
 import tn.esprit.tpfoyer17.entities.Chambre;
+import tn.esprit.tpfoyer17.repositories.ChambreRepository;
+import tn.esprit.tpfoyer17.repositories.EtudiantRepository;
 import tn.esprit.tpfoyer17.repositories.ReservationRepository;
 import tn.esprit.tpfoyer17.services.impementations.ReservationService;
 
 import static org.mockito.Mockito.*;
 import static org.junit.jupiter.api.Assertions.*;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.time.LocalDate;
+import java.util.*;
 
 @ExtendWith(MockitoExtension.class)
 @ActiveProfiles("test")
@@ -29,6 +30,10 @@ public class ReservationServiceMockitoTest {
     @Mock
     ReservationRepository reservationRepository;
 
+    @Mock
+    ChambreRepository   chambreRepository;
+    @Mock
+    EtudiantRepository etudiantRepository;
     @InjectMocks
     ReservationService reservationService;
 
@@ -40,21 +45,46 @@ public class ReservationServiceMockitoTest {
     // Test for addReservation()
     @Test
     void testAjouterReservation() {
-        Chambre chambre = new Chambre(); // Assume Chambre is properly initialized
-        Etudiant etudiant = new Etudiant(); // Assume Etudiant is properly initialized
+        long idChambre = 1L; // Example ID for Chambre
+        long cinEtudiant = 123456789L; // Example CIN for Etudiant
+
+        Chambre chambre = new Chambre(); // Initialize as per your needs
+        chambre.setNumeroChambre(101); // Set necessary properties
+        Bloc bloc = new Bloc(); // Initialize Bloc
+        bloc.setNomBloc("A"); // Set properties
+        chambre.setBloc(bloc); // Associate Bloc with Chambre
+
+        Etudiant etudiant = new Etudiant(); // Initialize Etudiant
+        etudiant.setCinEtudiant(cinEtudiant); // Set CIN
+
+        // Mocking repository behavior
+        when(etudiantRepository.findByCinEtudiant(cinEtudiant)).thenReturn(etudiant);
+        when(chambreRepository.findById(idChambre)).thenReturn(Optional.of(chambre));
+
+        // Create a new reservation with mocked data
+        String numReservation = "101A"; // Example generated ID
         Reservation reservation = Reservation.builder()
-                .chambre(chambre)
-                .etudiants((Set<Etudiant>) etudiant) // Assuming etudiants is a list
+                .idReservation(numReservation)
+                .etudiants(new HashSet<>())
+                .anneeUniversitaire(LocalDate.now())
+                .estValide(true)
                 .build();
 
-        // Define behavior for save() method in mocked repository
-        when(reservationRepository.save(reservation)).thenReturn(reservation);
+        // Mock findById to return an empty Optional (to mimic a new reservation)
+        when(reservationRepository.findById(numReservation)).thenReturn(Optional.empty());
+        when(reservationRepository.save(any(Reservation.class))).thenReturn(reservation);
 
-        Reservation savedReservation = reservationService.ajouterReservation(chambre.getIdChambre(), etudiant.getCinEtudiant());
+        // Call the method under test
+        Reservation savedReservation = reservationService.ajouterReservation(idChambre, cinEtudiant);
 
+        // Assertions to verify the expected behavior
         assertNotNull(savedReservation, "The saved reservation should not be null");
-        assertEquals(chambre, savedReservation.getChambre(), "The chambre should match");
-        verify(reservationRepository, times(1)).save(reservation); // Verify that save was called once
+        assertEquals(numReservation, savedReservation.getIdReservation(), "The reservation ID should match");
+
+        // Verify that the necessary repository methods were called
+        verify(etudiantRepository, times(1)).findByCinEtudiant(cinEtudiant);
+        verify(chambreRepository, times(1)).findById(idChambre);
+        verify(reservationRepository, times(1)).save(savedReservation);
     }
 
     // Test for retrieveReservations()
@@ -76,7 +106,17 @@ public class ReservationServiceMockitoTest {
     // Test for updateReservation()
     @Test
     void testUpdateReservation() {
-        Reservation reservation = Reservation.builder().idReservation(String.valueOf(1L)).build(); // Assume properly initialized
+        Chambre chambre = new Chambre(); // Assume Chambre is properly initialized
+        Etudiant etudiant = new Etudiant(); // Assume Etudiant is properly initialized
+
+        // Create a Set of Etudiants
+        Set<Etudiant> etudiants = new HashSet<>(Arrays.asList(etudiant)); // Use a Set
+
+        Reservation reservation = Reservation.builder()
+                .idReservation("1") // Assuming ID is a String
+                .chambre(chambre)
+                .etudiants(etudiants) // Use Set here
+                .build();
 
         // Define behavior for save() in mocked repository
         when(reservationRepository.save(reservation)).thenReturn(reservation);
@@ -106,20 +146,14 @@ public class ReservationServiceMockitoTest {
     // Test for removeReservation(long id)
     @Test
     void testRemoveReservation() {
-        // Mock the Reservation to be returned by findById()
-        Reservation reservation = Reservation.builder().idReservation(String.valueOf(1L)).build(); // Assume properly initialized
-        when(reservationRepository.findById(String.valueOf(1L))).thenReturn(Optional.of(reservation)); // Mock findById() to return a Reservation
+        Reservation reservation = Reservation.builder().idReservation("1").build();
+        when(reservationRepository.findById("1")).thenReturn(Optional.of(reservation));
+        doNothing().when(reservationRepository).deleteById("1");
 
-        // Mock the behavior of deleteById (no actual delete happening in the test)
-        doNothing().when(reservationRepository).deleteById(String.valueOf(1L));
+        // Correct method call to remove the reservation
+        reservationService.retrieveReservation("1");
 
-        // Call the service method
-        reservationService.retrieveReservation(String.valueOf(1L));
-
-        // Verify that findById() was called once
-        verify(reservationRepository, times(1)).findById("1"); // Pass String here
-
-        // Verify that deleteById() was called once
-        verify(reservationRepository, times(1)).deleteById(String.valueOf(1L));
+        verify(reservationRepository, times(1)).findById("1");
+        verify(reservationRepository, times(1)).deleteById("1");
     }
 }

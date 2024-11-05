@@ -96,7 +96,7 @@ public class ReservationService implements IReservationService {
         return universiteRepository.findByFoyerBlocsChambresReservationsAnneeUniversitaireAndNomUniversite(anneeUniversite, nomUniversite);
     }
 
-    /*@Transactional
+    @Transactional
     public Reservation ajouterReservation(long idChambre, long cinEtudiant) {
         Etudiant etudiant = etudiantRepository.findByCinEtudiant(cinEtudiant);
         Chambre chambre = chambreRepository.findById(idChambre).orElse(null);
@@ -156,39 +156,4 @@ public class ReservationService implements IReservationService {
         }
     }
 
-*/
-    @Transactional
-    public Reservation ajouterReservation(long idChambre, long cinEtudiant) {
-        Optional<Chambre> optionalChambre = chambreRepository.findById(idChambre);
-        Etudiant etudiant = etudiantRepository.findByCinEtudiant(cinEtudiant);
-
-        if (optionalChambre.isPresent() && etudiant != null) {
-            Chambre chambre = optionalChambre.get();
-            // Check if there's space in the chambre
-            if (chambre.getCurrentOccupants() < chambre.getMaxCapacity()) {
-                // Create and save the reservation
-                Reservation reservation = new Reservation();
-                reservation.setChambre(chambre);
-                reservation.setEtudiants((Set<Etudiant>) etudiant);
-                // Save reservation to the repository
-                reservationRepository.save(reservation);
-                return reservation; // Ensure this line is reached
-            }
-        }
-        return null; // Ensure this is the fallback for invalid cases
-    }
-    private void updateReservationValidity(Reservation reservation, Chambre chambre) {
-        switch (chambre.getTypeChambre()) {
-            case SIMPLE -> reservation.setEstValide(false);
-            case DOUBLE -> {
-                if (reservation.getEtudiants().size() == 2) reservation.setEstValide(false);
-            }
-            case TRIPLE -> {
-                if (reservation.getEtudiants().size() == 3) reservation.setEstValide(false);
-            }
-        }
-    }
-    private String generateId(String numeroChambre, String nomBloc) {
-        return numeroChambre + "-" + nomBloc + "-" + LocalDate.now().toString();
-    }
 }
