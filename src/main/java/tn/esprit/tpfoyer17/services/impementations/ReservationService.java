@@ -95,7 +95,7 @@ public class ReservationService implements IReservationService {
         return universiteRepository.findByFoyerBlocsChambresReservationsAnneeUniversitaireAndNomUniversite(anneeUniversite, nomUniversite);
     }
 
-    @Transactional
+    /*@Transactional
     public Reservation ajouterReservation(long idChambre, long cinEtudiant) {
         Etudiant etudiant = etudiantRepository.findByCinEtudiant(cinEtudiant);
         Chambre chambre = chambreRepository.findById(idChambre).orElse(null);
@@ -153,5 +153,54 @@ public class ReservationService implements IReservationService {
                 return false;
             }
         }
+    }
+
+*/
+    @Transactional
+    public Reservation ajouterReservation(long idChambre, long cinEtudiant) {
+        Etudiant etudiant = etudiantRepository.findByCinEtudiant(cinEtudiant);
+        if (etudiant == null) {
+            throw new IllegalArgumentException("Etudiant not found for CIN: " + cinEtudiant);
+        }
+
+        Chambre chambre = chambreRepository.findById(idChambre).orElseThrow(
+                () -> new IllegalArgumentException("Chambre not found for ID: " + idChambre));
+
+        String numReservation = generateId(String.valueOf(chambre.getNumeroChambre()),
+                chambre.getBloc().getNomBloc());
+
+        Reservation reservation = reservationRepository.findById(numReservation).orElse(
+                Reservation.builder()
+                        .idReservation(numReservation)
+                        .etudiants(new HashSet<>())
+                        .anneeUniversitaire(LocalDate.now())
+                        .estValide(true)
+                        .build());
+
+        // Check maximum capacity of the room
+        if (reservation.isEstValide()) {
+            chambre.getReservations().add(reservation);
+            reservation.getEtudiants().add(etudiant);
+            reservationRepository.save(reservation);
+        }
+
+        // Set reservation validity based on the type of room
+        updateReservationValidity(reservation, chambre);
+
+        return reservationRepository.save(reservation);
+    }
+    private void updateReservationValidity(Reservation reservation, Chambre chambre) {
+        switch (chambre.getTypeChambre()) {
+            case SIMPLE -> reservation.setEstValide(false);
+            case DOUBLE -> {
+                if (reservation.getEtudiants().size() == 2) reservation.setEstValide(false);
+            }
+            case TRIPLE -> {
+                if (reservation.getEtudiants().size() == 3) reservation.setEstValide(false);
+            }
+        }
+    }
+    private String generateId(String numeroChambre, String nomBloc) {
+        return numeroChambre + "-" + nomBloc + "-" + LocalDate.now().toString();
     }
 }
