@@ -78,9 +78,9 @@
     <!-- Deploy to Nexus -->
     <distributionManagement>
         <repository>
-            <id>maven-releases</id>
-            <name>maven-releases</name>
-            <url>http://192.168.1.24:8081/repository/maven-releases/</url>
+            <id>deploymentRepo</id>
+            <name>admin</name>
+            <url>http://localhost:8081/repository/maven-releases/</url>
         </repository>
     </distributionManagement>
 
