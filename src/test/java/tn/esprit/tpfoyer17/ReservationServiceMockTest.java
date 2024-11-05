@@ -95,16 +95,16 @@ class ReservationServiceMockTest {
 
         // Create a Chambre instance and set its TypeChambre
         Chambre chambre = new Chambre();
-        chambre.setTypeChambre(TypeChambre.DOUBLE);
+        chambre.setTypeChambre(TypeChambre.DOUBLE); // Ensure TypeChambre is initialized
         chambre.setReservations(reservations);
 
-        // Create a reservation and set etudiants
+        // Create a reservation and include the etudiant
         Reservation reservation = Reservation.builder()
                 .idReservation("reservationId")
                 .anneeUniversitaire(LocalDate.now())
                 .estValide(true)
-                .chambre(chambre)
-                .etudiants(new HashSet<>(Set.of(etudiant))) // Add the etudiant to the reservation
+                .chambre(chambre) // Set the chambre
+                .etudiants(new HashSet<>(Set.of(etudiant))) // Ensure etudiants is initialized
                 .build();
 
         reservations.add(reservation);
