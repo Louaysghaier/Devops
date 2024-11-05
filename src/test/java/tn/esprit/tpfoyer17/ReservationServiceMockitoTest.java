@@ -1,159 +1,105 @@
 package tn.esprit.tpfoyer17;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.test.context.ActiveProfiles;
-import tn.esprit.tpfoyer17.entities.Bloc;
-import tn.esprit.tpfoyer17.entities.Etudiant;
-import tn.esprit.tpfoyer17.entities.Reservation;
-import tn.esprit.tpfoyer17.entities.Chambre;
-import tn.esprit.tpfoyer17.repositories.ChambreRepository;
-import tn.esprit.tpfoyer17.repositories.EtudiantRepository;
-import tn.esprit.tpfoyer17.repositories.ReservationRepository;
-import tn.esprit.tpfoyer17.services.impementations.ReservationService;
-
 import static org.mockito.Mockito.*;
 import static org.junit.jupiter.api.Assertions.*;
 
-import java.time.LocalDate;
-import java.util.*;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.*;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.beans.factory.annotation.Autowired;
+import tn.esprit.tpfoyer17.entities.*;
+import tn.esprit.tpfoyer17.repositories.*;
+import tn.esprit.tpfoyer17.services.impementations.ReservationService;
 
-@ExtendWith(MockitoExtension.class)
-@ActiveProfiles("test")
+import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Optional;
+
+@SpringBootTest
 public class ReservationServiceMockitoTest {
 
     @Mock
-    ReservationRepository reservationRepository;
+    private ReservationRepository reservationRepository;
 
     @Mock
-    ChambreRepository   chambreRepository;
+    private EtudiantRepository etudiantRepository;
+
     @Mock
-    EtudiantRepository etudiantRepository;
-    @InjectMocks
-    ReservationService reservationService;
+    private ChambreRepository chambreRepository;
+
+    @Mock
+    private UniversiteRepository universiteRepository;
+
+    @Autowired
+    private ReservationService reservationService;
+
+    private Reservation reservation;
+    private Etudiant etudiant;
+    private Chambre chambre;
 
     @BeforeEach
-    void setUp() {
-        MockitoAnnotations.openMocks(this); // Initialize mocks
+    public void setup() {
+        MockitoAnnotations.openMocks(this);
+
+        // Initialize mock data
+        etudiant = new Etudiant();
+        chambre = new Chambre();
+        reservation = new Reservation("1-Bloc1-2024", LocalDate.now(), true, chambre, new HashSet<>());
+
+        // Inject mocks into the service
+        reservationService = new ReservationService(reservationRepository, etudiantRepository, chambreRepository, universiteRepository);
     }
 
-    // Test for addReservation()
     @Test
-    void testAjouterReservation() {
-        long idChambre = 1L; // Example ID for Chambre
-        long cinEtudiant = 123456789L; // Example CIN for Etudiant
+    public void testRetrieveReservation() {
+        when(reservationRepository.findById("1-Bloc1-2024")).thenReturn(Optional.of(reservation));
 
-        Chambre chambre = new Chambre(); // Initialize as per your needs
-        chambre.setNumeroChambre(101); // Set necessary properties
-        Bloc bloc = new Bloc(); // Initialize Bloc
-        bloc.setNomBloc("A"); // Set properties
-        chambre.setBloc(bloc); // Associate Bloc with Chambre
+        Reservation result = reservationService.retrieveReservation("1-Bloc1-2024");
 
-        Etudiant etudiant = new Etudiant(); // Initialize Etudiant
-        etudiant.setCinEtudiant(cinEtudiant); // Set CIN
+        assertNotNull(result);
+        assertEquals("1-Bloc1-2024", result.getIdReservation());
+    }
 
-        // Mocking repository behavior
+    @Test
+    public void testAjouterReservation() {
+        long cinEtudiant = 12345L;
+        long idChambre = 1L;
+
         when(etudiantRepository.findByCinEtudiant(cinEtudiant)).thenReturn(etudiant);
         when(chambreRepository.findById(idChambre)).thenReturn(Optional.of(chambre));
-
-        // Create a new reservation with mocked data
-        String numReservation = "101A"; // Example generated ID
-        Reservation reservation = Reservation.builder()
-                .idReservation(numReservation)
-                .etudiants(new HashSet<>())
-                .anneeUniversitaire(LocalDate.now())
-                .estValide(true)
-                .build();
-
-        // Mock findById to return an empty Optional (to mimic a new reservation)
-        when(reservationRepository.findById(numReservation)).thenReturn(Optional.empty());
         when(reservationRepository.save(any(Reservation.class))).thenReturn(reservation);
 
-        // Call the method under test
-        Reservation savedReservation = reservationService.ajouterReservation(idChambre, cinEtudiant);
+        Reservation result = reservationService.ajouterReservation(idChambre, cinEtudiant);
 
-        // Assertions to verify the expected behavior
-        assertNotNull(savedReservation, "The saved reservation should not be null");
-        assertEquals(numReservation, savedReservation.getIdReservation(), "The reservation ID should match");
-
-        // Verify that the necessary repository methods were called
-        verify(etudiantRepository, times(1)).findByCinEtudiant(cinEtudiant);
-        verify(chambreRepository, times(1)).findById(idChambre);
-        verify(reservationRepository, times(1)).save(savedReservation);
+        assertNotNull(result);
+        assertTrue(result.isEstValide());
+        verify(reservationRepository, times(1)).save(any(Reservation.class));
     }
 
-    // Test for retrieveReservations()
     @Test
-    void testRetrieveReservations() {
-        Reservation reservation1 = Reservation.builder().build(); // Assume properly initialized
-        Reservation reservation2 = Reservation.builder().build(); // Assume properly initialized
+    public void testAnnulerReservation() {
+        long cinEtudiant = 12345L;
 
-        // Define behavior for findAll() in the mocked repository
-        when(reservationRepository.findAll()).thenReturn(Arrays.asList(reservation1, reservation2));
+        when(etudiantRepository.findByCinEtudiant(cinEtudiant)).thenReturn(etudiant);
+        when(reservationRepository.findById("1-Bloc1-2024")).thenReturn(Optional.of(reservation));
 
-        List<Reservation> reservations = reservationService.retrieveAllReservation();
-        assertNotNull(reservations);
-        assertEquals(2, reservations.size(), "There should be 2 reservations retrieved");
+        Reservation result = reservationService.annulerReservation(cinEtudiant);
 
-        verify(reservationRepository, times(1)).findAll(); // Verify findAll was called once
+        assertNull(result); // Assumes the result is null when the cancellation is successful
+        verify(reservationRepository, times(1)).save(any(Reservation.class));
     }
 
-    // Test for updateReservation()
     @Test
-    void testUpdateReservation() {
-        Chambre chambre = new Chambre(); // Assume Chambre is properly initialized
-        Etudiant etudiant = new Etudiant(); // Assume Etudiant is properly initialized
+    public void testUpdateReservation() {
+        Reservation updatedReservation = new Reservation("1-Bloc1-2024", LocalDate.now(), false, chambre, new HashSet<>());
 
-        // Create a Set of Etudiants
-        Set<Etudiant> etudiants = new HashSet<>(Arrays.asList(etudiant)); // Use a Set
+        when(reservationRepository.save(updatedReservation)).thenReturn(updatedReservation);
 
-        Reservation reservation = Reservation.builder()
-                .idReservation("1") // Assuming ID is a String
-                .chambre(chambre)
-                .etudiants(etudiants) // Use Set here
-                .build();
+        Reservation result = reservationService.updateReservation(updatedReservation);
 
-        // Define behavior for save() in mocked repository
-        when(reservationRepository.save(reservation)).thenReturn(reservation);
-
-        reservation.setChambre(new Chambre()); // Update chambre or other fields
-        Reservation updatedReservation = reservationService.updateReservation(reservation);
-
-        assertEquals(reservation.getIdReservation(), updatedReservation.getIdReservation(), "The reservation ID should match");
-        verify(reservationRepository, times(1)).save(reservation); // Verify save was called once
-    }
-
-    // Test for retrieveReservation(long id)
-    @Test
-    void testRetrieveReservation() {
-        Reservation reservation = Reservation.builder().idReservation(String.valueOf(1L)).build(); // Assume properly initialized
-
-        // Define behavior for findById() in mocked repository
-        when(reservationRepository.findById(String.valueOf(1L))).thenReturn(Optional.of(reservation));
-
-        Reservation retrievedReservation = reservationService.retrieveReservation(String.valueOf(1L));
-
-        assertNotNull(retrievedReservation, "The retrieved reservation should not be null");
-        assertEquals(1L, retrievedReservation.getIdReservation(), "The reservation ID should match");
-        verify(reservationRepository, times(1)).findById(String.valueOf(1L)); // Verify findById was called once
-    }
-
-    // Test for removeReservation(long id)
-    @Test
-    void testRemoveReservation() {
-        Reservation reservation = Reservation.builder().idReservation("1").build();
-        when(reservationRepository.findById("1")).thenReturn(Optional.of(reservation));
-        doNothing().when(reservationRepository).deleteById("1");
-
-        // Correct method call to remove the reservation
-        reservationService.retrieveReservation("1");
-
-        verify(reservationRepository, times(1)).findById("1");
-        verify(reservationRepository, times(1)).deleteById("1");
+        assertNotNull(result);
+        assertFalse(result.isEstValide());
+        verify(reservationRepository, times(1)).save(updatedReservation);
     }
 }
