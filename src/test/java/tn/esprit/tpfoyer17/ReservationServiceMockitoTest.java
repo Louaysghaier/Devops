@@ -107,7 +107,6 @@ public class ReservationServiceMockitoTest {
 
     @Test
     void testAjouterReservation() {
-        // Mocking dependencies
         long cinEtudiant = 12345678L;
         long idChambre = 1L;
 
@@ -135,7 +134,7 @@ public class ReservationServiceMockitoTest {
         Reservation reservation = reservationService.ajouterReservation(idChambre, cinEtudiant);
 
         // Assertions
-        assertNotNull(reservation);
+        assertNotNull(reservation, "Reservation should not be null");
         // Further assertions based on your expectations
     }
 
