@@ -7,7 +7,6 @@ import lombok.experimental.FieldDefaults;
 
 import java.io.Serializable;
 import java.time.LocalDate;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -22,7 +21,6 @@ import java.util.Set;
 public class Reservation implements Serializable {
 
     @Id
-   // @GeneratedValue(strategy = GenerationType.SEQUENCE)
     String idReservation;
 
     LocalDate anneeUniversitaire;
@@ -30,15 +28,16 @@ public class Reservation implements Serializable {
     boolean estValide;
 
     @ToString.Exclude
+    @ManyToOne // Assuming a reservation is linked to one chambre
+    @JoinColumn(name = "chambre_id") // Update this to match your database schema
+    private Chambre chambre;
+
+    // Optional: To explicitly show the methods
+    @Setter
+    @Getter
+    @ToString.Exclude
     @ManyToMany
     @JsonIgnore
-
     private Set<Etudiant> etudiants = new HashSet<>(); // Initialize to avoid null
 
-    public Set<Etudiant> getEtudiants() {
-        return etudiants;
-    }
-    public void setEtudiants(Set<Etudiant> etudiants) {
-        this.etudiants = etudiants;
-    }
 }

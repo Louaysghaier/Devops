@@ -8,10 +8,11 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import tn.esprit.tpfoyer17.entities.Bloc;
 import tn.esprit.tpfoyer17.entities.Chambre;
 import tn.esprit.tpfoyer17.entities.Etudiant;
-import tn.esprit.tpfoyer17.entities.enumerations.TypeChambre;
 import tn.esprit.tpfoyer17.entities.Reservation;
+import tn.esprit.tpfoyer17.entities.enumerations.TypeChambre;
 import tn.esprit.tpfoyer17.repositories.ChambreRepository;
 import tn.esprit.tpfoyer17.repositories.EtudiantRepository;
 import tn.esprit.tpfoyer17.repositories.ReservationRepository;
@@ -27,7 +28,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.context.ActiveProfiles;
 
-import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 @ActiveProfiles("test")
 class ReservationServiceMockTest {
@@ -69,24 +69,43 @@ class ReservationServiceMockTest {
 
     @Test
     void testAjouterReservation() {
-        long idChambre = 1L;
-        long cinEtudiant = 12345678L;
-        Etudiant etudiant = new Etudiant();
+        // Create a Bloc instance
+        Bloc bloc = new Bloc();
+        bloc.setNomBloc("Bloc A");
+
+        // Create a Chambre instance and set its Bloc
         Chambre chambre = new Chambre();
-        chambre.setTypeChambre(TypeChambre.SIMPLE);
-        chambre.setNumeroChambre(1L);
-        chambre.setReservations(new HashSet<>());
+        chambre.setBloc(bloc);
+        chambre.setTypeChambre(TypeChambre.DOUBLE);
 
-        when(etudiantRepository.findByCinEtudiant(cinEtudiant)).thenReturn(etudiant);
-        when(chambreRepository.findById(idChambre)).thenReturn(Optional.of(chambre));
-        when(reservationRepository.findById(anyString())).thenReturn(Optional.empty());
+        // Create a new Etudiant instance
+        Etudiant etudiant = new Etudiant();
+        etudiant.setCinEtudiant(12345678L);
 
-        Reservation result = reservationService.ajouterReservation(idChambre, cinEtudiant);
+        // Mock repository behaviors
+        when(etudiantRepository.findByCinEtudiant(etudiant.getCinEtudiant())).thenReturn(etudiant);
+        when(chambreRepository.save(chambre)).thenReturn(chambre);
 
-        assertNotNull(result);
-        verify(reservationRepository, times(1)).save(any(Reservation.class));
-        verify(etudiantRepository, times(1)).findByCinEtudiant(cinEtudiant);
-        verify(chambreRepository, times(1)).findById(idChambre);
+        // Create a reservation and save it
+        Reservation reservation = Reservation.builder()
+                .idReservation("reservationId")
+                .anneeUniversitaire(LocalDate.now())
+                .estValide(true)
+                .chambre(chambre)
+                .etudiants(new HashSet<Etudiant>() {{ add(etudiant); }}) // Add the student
+                .build();
+
+        when(reservationRepository.save(reservation)).thenReturn(reservation);
+
+        // Perform the action
+        Reservation result = reservationService.ajouterReservation(etudiant.getCinEtudiant(), chambre.getIdChambre());
+
+        // Assertions
+        assertNotNull(result, "The reservation result should not be null.");
+        assertEquals(reservation.getIdReservation(), result.getIdReservation(), "The reservation ID should match.");
+        verify(etudiantRepository, times(1)).findByCinEtudiant(etudiant.getCinEtudiant());
+        verify(chambreRepository, times(1)).save(chambre);
+        verify(reservationRepository, times(1)).save(reservation);
     }
 
     @Test
@@ -95,15 +114,15 @@ class ReservationServiceMockTest {
         Etudiant etudiant = new Etudiant();
         Set<Reservation> reservations = new HashSet<>();
 
-        // Use the builder to create a reservation with an ID
+        // Create a reservation with a proper ID and initialize the etudiants set
         Reservation reservation = Reservation.builder()
                 .idReservation("reservationId")
-                .anneeUniversitaire(LocalDate.now()) // Set other properties as needed
+                .anneeUniversitaire(LocalDate.now())
                 .estValide(true)
+                .etudiants(new HashSet<>()) // Ensure etudiants is initialized
                 .build();
 
         Chambre chambre = new Chambre();
-        chambre.setTypeChambre(TypeChambre.DOUBLE);
         chambre.setReservations(reservations);
 
         reservations.add(reservation);
@@ -112,9 +131,10 @@ class ReservationServiceMockTest {
         when(etudiantRepository.findByCinEtudiant(cinEtudiant)).thenReturn(etudiant);
         when(chambreRepository.findByReservationsIdReservation(reservation.getIdReservation())).thenReturn(chambre);
 
+        // Perform the action
         Reservation result = reservationService.annulerReservation(cinEtudiant);
 
-        // Adjust the assertion based on the expected behavior
+        // Adjust the assertion based on your expected behavior
         assertNotNull(result); // Or assertNull depending on your logic
         verify(reservationRepository, times(1)).save(any(Reservation.class));
     }
