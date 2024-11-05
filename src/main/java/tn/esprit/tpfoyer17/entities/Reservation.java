@@ -32,7 +32,6 @@ public class Reservation implements Serializable {
     @JoinColumn(name = "chambre_id") // Update this to match your database schema
     private Chambre chambre;
 
-    // Optional: To explicitly show the methods
     @Setter
     @Getter
     @ToString.Exclude
