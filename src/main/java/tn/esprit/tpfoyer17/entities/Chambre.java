@@ -40,5 +40,11 @@ public class Chambre implements Serializable {
     @JsonIgnore
     Set<Reservation> reservations ;
 
+    int maxCapacity;
+
+    public int getCurrentOccupants() {
+        return reservations.stream()
+                .mapToInt(reservation -> reservation.getEtudiants().size())
+                .sum();}
 
 }

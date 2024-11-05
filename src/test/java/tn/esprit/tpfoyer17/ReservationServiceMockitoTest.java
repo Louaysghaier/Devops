@@ -119,11 +119,13 @@ public class ReservationServiceMockitoTest {
         Bloc bloc = new Bloc();
         bloc.setNomBloc("Bloc A");
 
-        // Create a mock Chambre with a Bloc
+        // Create a mock Chambre with a Bloc and initialize reservations
         Chambre chambre = new Chambre();
         chambre.setNumeroChambre(101);
         chambre.setTypeChambre(TypeChambre.SIMPLE);
-        chambre.setBloc(bloc); // Ensure Bloc is set
+        chambre.setMaxCapacity(2);
+        chambre.setBloc(bloc);
+        chambre.setReservations(new HashSet<>()); // Ensure reservations are initialized
 
         // Mock repository behaviors
         when(etudiantRepository.findByCinEtudiant(cinEtudiant)).thenReturn(etudiant);
