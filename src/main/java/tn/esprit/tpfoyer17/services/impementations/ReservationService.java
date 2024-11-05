@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import tn.esprit.tpfoyer17.entities.Chambre;
 import tn.esprit.tpfoyer17.entities.Etudiant;
 import tn.esprit.tpfoyer17.entities.Reservation;
+import tn.esprit.tpfoyer17.entities.enumerations.TypeChambre;
 import tn.esprit.tpfoyer17.repositories.ChambreRepository;
 import tn.esprit.tpfoyer17.repositories.EtudiantRepository;
 import tn.esprit.tpfoyer17.repositories.ReservationRepository;
@@ -46,27 +47,42 @@ public class ReservationService implements IReservationService {
 
     }
 
-    @Transactional
     public Reservation annulerReservation(long cinEtudiant) {
         Etudiant etudiant = etudiantRepository.findByCinEtudiant(cinEtudiant);
+        if (etudiant == null) {
+            throw new IllegalArgumentException("Etudiant not found");
+        }
+
         Set<Reservation> reservationList = etudiant.getReservations();
         for (Reservation reservation : reservationList) {
             reservation.getEtudiants().remove(etudiant);
             reservationRepository.save(reservation);
+
             Chambre chambre = chambreRepository.findByReservationsIdReservation(reservation.getIdReservation());
-            chambre.getReservations().remove(reservation);
-            switch (chambre.getTypeChambre()) {
-                case SIMPLE -> reservation.setEstValide(true);
-                case DOUBLE -> {
-                    if (reservation.getEtudiants().size() == 2) reservation.setEstValide(true);
-                }
-                case TRIPLE -> {
-                    if (reservation.getEtudiants().size() == 3) reservation.setEstValide(true);
+            if (chambre != null) { // Check if chambre is not null
+                chambre.getReservations().remove(reservation);
+
+                // Check for TypeChambre before switching
+                TypeChambre typeChambre = chambre.getTypeChambre();
+                if (typeChambre != null) { // Ensure typeChambre is not null
+                    switch (typeChambre) {
+                        case SIMPLE -> reservation.setEstValide(true);
+                        case DOUBLE -> {
+                            if (reservation.getEtudiants().size() == 2) {
+                                reservation.setEstValide(true);
+                            }
+                        }
+                        case TRIPLE -> {
+                            if (reservation.getEtudiants().size() == 3) {
+                                reservation.setEstValide(true);
+                            }
+                        }
+                    }
                 }
             }
-
         }
-        return null;
+        // Return the last processed reservation or a status message, as needed
+        return reservationList.isEmpty() ? null : reservationList.iterator().next(); // or return a meaningful result
     }
 
     @Override
