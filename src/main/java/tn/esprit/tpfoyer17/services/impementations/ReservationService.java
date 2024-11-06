@@ -1,6 +1,5 @@
 package tn.esprit.tpfoyer17.services.impementations;
 
-import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -56,29 +55,27 @@ public class ReservationService implements IReservationService {
         }
 
         Set<Reservation> reservationList = etudiant.getReservations();
-        if (reservationList != null) {
-            for (Reservation reservation : reservationList) {
-                reservation.getEtudiants().remove(etudiant);
-                reservationRepository.save(reservation);
+        for (Reservation reservation : reservationList) {
+            reservation.getEtudiants().remove(etudiant);
+            reservationRepository.save(reservation);
 
-                Chambre chambre = chambreRepository.findByReservationsIdReservation(reservation.getIdReservation());
-                if (chambre != null) { // Check if chambre is not null
-                    chambre.getReservations().remove(reservation);
+            Chambre chambre = chambreRepository.findByReservationsIdReservation(reservation.getIdReservation());
+            if (chambre != null) { // Check if chambre is not null
+                chambre.getReservations().remove(reservation);
 
-                    // Check for TypeChambre before switching
-                    TypeChambre typeChambre = chambre.getTypeChambre();
-                    if (typeChambre != null) { // Ensure typeChambre is not null
-                        switch (typeChambre) {
-                            case SIMPLE -> reservation.setEstValide(true);
-                            case DOUBLE -> {
-                                if (reservation.getEtudiants().size() == 2) {
-                                    reservation.setEstValide(true);
-                                }
+                // Check for TypeChambre before switching
+                TypeChambre typeChambre = chambre.getTypeChambre();
+                if (typeChambre != null) { // Ensure typeChambre is not null
+                    switch (typeChambre) {
+                        case SIMPLE -> reservation.setEstValide(true);
+                        case DOUBLE -> {
+                            if (reservation.getEtudiants().size() == 2) {
+                                reservation.setEstValide(true);
                             }
-                            case TRIPLE -> {
-                                if (reservation.getEtudiants().size() == 3) {
-                                    reservation.setEstValide(true);
-                                }
+                        }
+                        case TRIPLE -> {
+                            if (reservation.getEtudiants().size() == 3) {
+                                reservation.setEstValide(true);
                             }
                         }
                     }
@@ -99,14 +96,15 @@ public class ReservationService implements IReservationService {
         return universiteRepository.findByFoyerBlocsChambresReservationsAnneeUniversitaireAndNomUniversite(anneeUniversite, nomUniversite);
     }
 
-    @Transactional
+    /*@Transactional
     public Reservation ajouterReservation(long idChambre, long cinEtudiant) {
         Etudiant etudiant = etudiantRepository.findByCinEtudiant(cinEtudiant);
-        Chambre chambre = chambreRepository.findById(idChambre).orElseThrow(() -> new EntityNotFoundException("Chambre not found"));
+        Chambre chambre = chambreRepository.findById(idChambre).orElse(null);
 
-        String numReservation = generateId(chambre.getNumeroChambre(), chambre.getBloc().getNomBloc());
+        assert chambre != null;
+        String numReservation = generateId(chambre.getNumeroChambre(),
+                chambre.getBloc().getNomBloc());
 
-        // Get or create the reservation
         Reservation reservation = reservationRepository.findById(numReservation).orElse(
                 Reservation.builder()
                         .idReservation(numReservation)
@@ -115,32 +113,26 @@ public class ReservationService implements IReservationService {
                         .estValide(true)
                         .build());
 
-        // Check if the room's max capacity is not exceeded before adding the student
-        if (reservation.isEstValide() && capaciteChambreMaximale(chambre)) {
-            // Add the student to the reservation
+
+        //Vérifier capacité maximale de la chambre
+        if (reservation.isEstValide() && (capaciteChambreMaximale(chambre))) {
             chambre.getReservations().add(reservation);
             reservation.getEtudiants().add(etudiant);
-
-            // Validate the room type capacity
-            switch (chambre.getTypeChambre()) {
-                case SIMPLE:
-                    if (reservation.getEtudiants().size() > 1) reservation.setEstValide(false);
-                    break;
-                case DOUBLE:
-                    if (reservation.getEtudiants().size() > 2) reservation.setEstValide(false);
-                    break;
-                case TRIPLE:
-                    if (reservation.getEtudiants().size() > 3) reservation.setEstValide(false);
-                    break;
-            }
-
-            // Save the reservation after validation
-            return reservationRepository.save(reservation);
+            reservationRepository.save(reservation);
         }
 
-        throw new IllegalStateException("The room has reached its maximum capacity or reservation is invalid.");
-    }
+        switch (chambre.getTypeChambre()) {
+            case SIMPLE -> reservation.setEstValide(false);
+            case DOUBLE -> {
+                if (reservation.getEtudiants().size() == 2) reservation.setEstValide(false);
+            }
+            case TRIPLE -> {
+                if (reservation.getEtudiants().size() == 3) reservation.setEstValide(false);
+            }
+        }
+        return reservationRepository.save(reservation);
 
+    }
 
 
     private String generateId(long numChambre, String nomBloc) {
@@ -164,4 +156,39 @@ public class ReservationService implements IReservationService {
         }
     }
 
+*/
+    @Transactional
+    public Reservation ajouterReservation(long idChambre, long cinEtudiant) {
+        Optional<Chambre> optionalChambre = chambreRepository.findById(idChambre);
+        Etudiant etudiant = etudiantRepository.findByCinEtudiant(cinEtudiant);
+
+        if (optionalChambre.isPresent() && etudiant != null) {
+            Chambre chambre = optionalChambre.get();
+            // Check if there's space in the chambre
+            if (chambre.getCurrentOccupants() < chambre.getMaxCapacity()) {
+                // Create and save the reservation
+                Reservation reservation = new Reservation();
+                reservation.setChambre(chambre);
+                reservation.setEtudiants((Set<Etudiant>) etudiant);
+                // Save reservation to the repository
+                reservationRepository.save(reservation);
+                return reservation; // Ensure this line is reached
+            }
+        }
+        return null; // Ensure this is the fallback for invalid cases
+    }
+    private void updateReservationValidity(Reservation reservation, Chambre chambre) {
+        switch (chambre.getTypeChambre()) {
+            case SIMPLE -> reservation.setEstValide(false);
+            case DOUBLE -> {
+                if (reservation.getEtudiants().size() == 2) reservation.setEstValide(false);
+            }
+            case TRIPLE -> {
+                if (reservation.getEtudiants().size() == 3) reservation.setEstValide(false);
+            }
+        }
+    }
+    private String generateId(String numeroChambre, String nomBloc) {
+        return numeroChambre + "-" + nomBloc + "-" + LocalDate.now().toString();
+    }
 }
