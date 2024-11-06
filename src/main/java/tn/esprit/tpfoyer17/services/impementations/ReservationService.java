@@ -55,27 +55,29 @@ public class ReservationService implements IReservationService {
         }
 
         Set<Reservation> reservationList = etudiant.getReservations();
-        for (Reservation reservation : reservationList) {
-            reservation.getEtudiants().remove(etudiant);
-            reservationRepository.save(reservation);
+        if (reservationList != null) {
+            for (Reservation reservation : reservationList) {
+                reservation.getEtudiants().remove(etudiant);
+                reservationRepository.save(reservation);
 
-            Chambre chambre = chambreRepository.findByReservationsIdReservation(reservation.getIdReservation());
-            if (chambre != null) { // Check if chambre is not null
-                chambre.getReservations().remove(reservation);
+                Chambre chambre = chambreRepository.findByReservationsIdReservation(reservation.getIdReservation());
+                if (chambre != null) { // Check if chambre is not null
+                    chambre.getReservations().remove(reservation);
 
-                // Check for TypeChambre before switching
-                TypeChambre typeChambre = chambre.getTypeChambre();
-                if (typeChambre != null) { // Ensure typeChambre is not null
-                    switch (typeChambre) {
-                        case SIMPLE -> reservation.setEstValide(true);
-                        case DOUBLE -> {
-                            if (reservation.getEtudiants().size() == 2) {
-                                reservation.setEstValide(true);
+                    // Check for TypeChambre before switching
+                    TypeChambre typeChambre = chambre.getTypeChambre();
+                    if (typeChambre != null) { // Ensure typeChambre is not null
+                        switch (typeChambre) {
+                            case SIMPLE -> reservation.setEstValide(true);
+                            case DOUBLE -> {
+                                if (reservation.getEtudiants().size() == 2) {
+                                    reservation.setEstValide(true);
+                                }
                             }
-                        }
-                        case TRIPLE -> {
-                            if (reservation.getEtudiants().size() == 3) {
-                                reservation.setEstValide(true);
+                            case TRIPLE -> {
+                                if (reservation.getEtudiants().size() == 3) {
+                                    reservation.setEstValide(true);
+                                }
                             }
                         }
                     }

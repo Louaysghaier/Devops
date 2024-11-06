@@ -81,7 +81,7 @@ public class ReservationServiceMockitoTest {
         assertTrue(result.isEstValide());
         verify(reservationRepository, times(1)).save(any(Reservation.class));
     }
-
+*/
     @Test
     public void testAnnulerReservation() {
         long cinEtudiant = 12345L;
@@ -93,7 +93,7 @@ public class ReservationServiceMockitoTest {
 
         assertNull(result); // Assumes the result is null when the cancellation is successful
         verify(reservationRepository, times(1)).save(any(Reservation.class));
-    }*/
+    }
 
     @Test
     public void testUpdateReservation() {
