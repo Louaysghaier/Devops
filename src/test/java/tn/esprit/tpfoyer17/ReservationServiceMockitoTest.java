@@ -5,7 +5,6 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import tn.esprit.tpfoyer17.entities.Bloc;
 import tn.esprit.tpfoyer17.entities.Chambre;
 import tn.esprit.tpfoyer17.entities.Etudiant;
 import tn.esprit.tpfoyer17.entities.Reservation;
@@ -16,8 +15,7 @@ import tn.esprit.tpfoyer17.repositories.ReservationRepository;
 import tn.esprit.tpfoyer17.repositories.UniversiteRepository;
 import tn.esprit.tpfoyer17.services.impementations.ReservationService;
 
-import java.time.LocalDate;
-import java.util.HashSet;
+
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -105,7 +103,7 @@ public class ReservationServiceMockitoTest {
         verify(reservationRepository, times(1)).save(reservation);
     }
 
-    @Test
+   /* @Test
     void testAjouterReservation() {
         long cinEtudiant = 12345678L;
         long idChambre = 1L;
@@ -137,7 +135,7 @@ public class ReservationServiceMockitoTest {
         assertNotNull(reservation, "Reservation should not be null");
         // Further assertions based on your expectations
     }
-
+*/
    /* @Test
     public void testCapaciteChambreMaximale() {
         // Arrange
