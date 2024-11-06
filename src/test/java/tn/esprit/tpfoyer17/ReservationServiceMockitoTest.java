@@ -2,9 +2,12 @@ package tn.esprit.tpfoyer17;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.context.ActiveProfiles;
 import tn.esprit.tpfoyer17.entities.Bloc;
 import tn.esprit.tpfoyer17.entities.Chambre;
 import tn.esprit.tpfoyer17.entities.Etudiant;
@@ -16,7 +19,6 @@ import tn.esprit.tpfoyer17.repositories.ReservationRepository;
 import tn.esprit.tpfoyer17.repositories.UniversiteRepository;
 import tn.esprit.tpfoyer17.services.impementations.ReservationService;
 
-import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -24,7 +26,9 @@ import java.util.Set;
 
 import static org.mockito.Mockito.*;
 import static org.junit.jupiter.api.Assertions.*;
-
+import static org.mockito.Mockito.when;
+@ExtendWith(MockitoExtension.class)
+@ActiveProfiles("test")
 public class ReservationServiceMockitoTest {
 
     @InjectMocks
@@ -105,14 +109,18 @@ public class ReservationServiceMockitoTest {
         verify(reservationRepository, times(1)).save(reservation);
     }
 
-   /* @Test
+    @Test
     void testAjouterReservation() {
         long cinEtudiant = 12345678L;
         long idChambre = 1L;
 
+
+
         // Create a mock Etudiant
-        Etudiant etudiant = new Etudiant();
+        Set<Etudiant> etudiants = new HashSet<>();
+        etudiants.add(new Etudiant());
         etudiant.setCinEtudiant(cinEtudiant);
+        reservation.setEtudiants(etudiants);  // or whatever the appropriate setter i
 
         // Create a mock Bloc
         Bloc bloc = new Bloc();
@@ -137,7 +145,7 @@ public class ReservationServiceMockitoTest {
         assertNotNull(reservation, "Reservation should not be null");
         // Further assertions based on your expectations
     }
-*/
+
    /* @Test
     public void testCapaciteChambreMaximale() {
         // Arrange
