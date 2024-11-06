@@ -1,0 +1,33 @@
+version: '3.8'
+
+services:
+  app:
+    image: docker.io/louay01/tpfoyer-app:latest
+    build:
+      context: .
+      args:
+        NEXUS_USER: "admin"
+        NEXUS_PASSWORD: "admin"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://localhost:3306/tpFoyer17?&createDatabaseIfNotExist=true&useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC
+      - SPRING_DATASOURCE_USERNAME="root"
+      - SPRING_DATASOURCE_PASSWORD=""
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+    ports:
+      - "8082:8082"
+    depends_on:
+      - db
+
+  db:
+    image: mysql:8.0
+    environment:
+      MYSQL_DATABASE: tpFoyer17
+      MYSQL_USER: "root"
+      MYSQL_PASSWORD: ""
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+
+volumes:
+  mysql-data:
