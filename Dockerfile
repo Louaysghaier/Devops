@@ -11,14 +11,15 @@ ARG ARTIFACT_ID="tpFoyer-17"
 # Install required dependencies
 RUN apt-get update && apt-get install -y curl libxml2-utils && apt-get clean
 
-# Download the latest version of the JAR file from Nexus
+# Fetch the latest version from Nexus and verify
 RUN mkdir /app \
     && cd /app \
-    && LATEST_VERSION=$(curl -u $NEXUS_USER:$NEXUS_PASSWORD -s "$NEXUS_URL$GROUP_ID/$ARTIFACT_ID/maven-metadata.xml" | \
-        xmllint --xpath "string(//metadata/versioning/latest)" -) \
-    && echo "Latest version is $LATEST_VERSION" \
-    && curl -u $NEXUS_USER:$NEXUS_PASSWORD -O "$NEXUS_URL/$GROUP_ID/$ARTIFACT_ID/$LATEST_VERSION/$ARTIFACT_ID-$LATEST_VERSION.jar"
-
+    && echo "Fetching latest version from Nexus..." \
+    && LATEST_VERSION=$(curl -u $NEXUS_USER:$NEXUS_PASSWORD -s "$NEXUS_URL$GROUP_ID/$ARTIFACT_ID/maven-metadata.xml" | xmllint --xpath "string(//metadata/versioning/latest)" -) \
+    && echo "Latest version retrieved: $LATEST_VERSION" \
+    && if [ -z "$LATEST_VERSION" ]; then echo "Error: Failed to retrieve latest version"; exit 1; fi \
+    && curl -u $NEXUS_USER:$NEXUS_PASSWORD -O "$NEXUS_URL/$GROUP_ID/$ARTIFACT_ID/$LATEST_VERSION/$ARTIFACT_ID-$LATEST_VERSION.jar" \
+    && mv "$ARTIFACT_ID-$LATEST_VERSION.jar" app.jar
 # Rename the JAR file for convenience
 RUN mv "$ARTIFACT_ID-$LATEST_VERSION.jar" app.jar
 
