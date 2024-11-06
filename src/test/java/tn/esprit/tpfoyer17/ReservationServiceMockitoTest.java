@@ -18,6 +18,7 @@ import tn.esprit.tpfoyer17.services.impementations.ReservationService;
 import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Optional;
+import java.util.Set;
 
 import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
@@ -42,10 +43,17 @@ public class ReservationServiceMockitoTest {
     private Reservation reservation;
     private Etudiant etudiant;
     private Chambre chambre;
+    private Bloc bloc;
+
+
+    @Mock
+    private Set<Reservation> reservationList; // Mock this list
 
     @BeforeEach
     public void setup() {
         MockitoAnnotations.openMocks(this);
+        when(chambre.getBloc()).thenReturn(bloc);
+        when(bloc.getNomBloc()).thenReturn("Bloc A");
 
         // Initialize mock data
         etudiant = new Etudiant();
