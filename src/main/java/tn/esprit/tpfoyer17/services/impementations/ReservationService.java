@@ -1,5 +1,6 @@
 package tn.esprit.tpfoyer17.services.impementations;
 
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -101,12 +102,11 @@ public class ReservationService implements IReservationService {
     @Transactional
     public Reservation ajouterReservation(long idChambre, long cinEtudiant) {
         Etudiant etudiant = etudiantRepository.findByCinEtudiant(cinEtudiant);
-        Chambre chambre = chambreRepository.findById(idChambre).orElse(null);
+        Chambre chambre = chambreRepository.findById(idChambre).orElseThrow(() -> new EntityNotFoundException("Chambre not found"));
 
-        assert chambre != null;
-        String numReservation = generateId(chambre.getNumeroChambre(),
-                chambre.getBloc().getNomBloc());
+        String numReservation = generateId(chambre.getNumeroChambre(), chambre.getBloc().getNomBloc());
 
+        // Get or create the reservation
         Reservation reservation = reservationRepository.findById(numReservation).orElse(
                 Reservation.builder()
                         .idReservation(numReservation)
@@ -115,26 +115,32 @@ public class ReservationService implements IReservationService {
                         .estValide(true)
                         .build());
 
-
-        //Vérifier capacité maximale de la chambre
-        if (reservation.isEstValide() && (capaciteChambreMaximale(chambre))) {
+        // Check if the room's max capacity is not exceeded before adding the student
+        if (reservation.isEstValide() && capaciteChambreMaximale(chambre)) {
+            // Add the student to the reservation
             chambre.getReservations().add(reservation);
             reservation.getEtudiants().add(etudiant);
-            reservationRepository.save(reservation);
+
+            // Validate the room type capacity
+            switch (chambre.getTypeChambre()) {
+                case SIMPLE:
+                    if (reservation.getEtudiants().size() > 1) reservation.setEstValide(false);
+                    break;
+                case DOUBLE:
+                    if (reservation.getEtudiants().size() > 2) reservation.setEstValide(false);
+                    break;
+                case TRIPLE:
+                    if (reservation.getEtudiants().size() > 3) reservation.setEstValide(false);
+                    break;
+            }
+
+            // Save the reservation after validation
+            return reservationRepository.save(reservation);
         }
 
-        switch (chambre.getTypeChambre()) {
-            case SIMPLE -> reservation.setEstValide(false);
-            case DOUBLE -> {
-                if (reservation.getEtudiants().size() == 2) reservation.setEstValide(false);
-            }
-            case TRIPLE -> {
-                if (reservation.getEtudiants().size() == 3) reservation.setEstValide(false);
-            }
-        }
-        return reservationRepository.save(reservation);
-
+        throw new IllegalStateException("The room has reached its maximum capacity or reservation is invalid.");
     }
+
 
 
     private String generateId(long numChambre, String nomBloc) {
