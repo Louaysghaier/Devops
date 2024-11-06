@@ -27,7 +27,7 @@ import java.util.Set;
 @Slf4j
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class ReservationService implements IReservationService {
-    ReservationRepository reservationRepository;
+    public ReservationRepository reservationRepository;
     EtudiantRepository etudiantRepository;
     ChambreRepository chambreRepository;
     UniversiteRepository universiteRepository;

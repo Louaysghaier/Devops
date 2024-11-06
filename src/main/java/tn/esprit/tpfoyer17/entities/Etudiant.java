@@ -37,4 +37,9 @@ public class Etudiant implements Serializable {
     @JsonIgnore
     Set<Reservation> reservations;
 
+    public Etudiant(String nom, String prenom, int cinEtudiant) {
+        this.nomEtudiant = nom;
+        this.prenomEtudiant = prenom;
+        this.cinEtudiant = cinEtudiant;}
+
 }
