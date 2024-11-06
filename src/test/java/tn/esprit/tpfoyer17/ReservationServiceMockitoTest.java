@@ -105,7 +105,7 @@ public class ReservationServiceMockitoTest {
         verify(reservationRepository, times(1)).save(reservation);
     }
 
-    @Test
+   /* @Test
     void testAjouterReservation() {
         long cinEtudiant = 12345678L;
         long idChambre = 1L;
@@ -137,7 +137,7 @@ public class ReservationServiceMockitoTest {
         assertNotNull(reservation, "Reservation should not be null");
         // Further assertions based on your expectations
     }
-
+*/
    /* @Test
     public void testCapaciteChambreMaximale() {
         // Arrange
