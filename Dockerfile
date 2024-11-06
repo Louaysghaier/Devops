@@ -8,8 +8,8 @@ ARG NEXUS_URL="http://192.168.1.15:8081/repository/maven-releases/"
 ARG GROUP_ID="tn/esprit"
 ARG ARTIFACT_ID="tpFoyer-17"
 
-# Install necessary tools (curl and jq for parsing JSON)
-RUN apt-get update && apt-get install -y curl jq
+# Install required dependencies
+RUN apt-get update && apt-get install -y curl libxml2-utils && apt-get clean
 
 # Download the latest version of the JAR file from Nexus
 RUN mkdir /app \
