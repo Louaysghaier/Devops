@@ -6,15 +6,13 @@ pipeline{
                 git branch: 'dorra', url: 'https://github.com/Louaysghaier/DEVOPS.git'
          }
 }
-          stage('Unit Testing') {
-              steps {
-                     sh 'mvn test'
-
-
-
-
-
-                     }}
+        stage('Unit Tests') {
+            steps {
+                // Exécuter les tests unitaires, y compris ceux avec Mockito
+                sh 'mvn test -Dspring.profiles.active=test'
+                junit 'target/surefire-reports/*.xml'  // Publier les résultats des tests
+            }
+        }
                  stage('Maven Build') {
                      steps {
                          sh 'mvn clean install'
@@ -23,6 +21,6 @@ pipeline{
 
 
 
-                
+
     }
 }
