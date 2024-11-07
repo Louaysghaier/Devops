@@ -6,25 +6,25 @@ pipeline{
                 git branch: 'dorra', url: 'https://github.com/Louaysghaier/DEVOPS.git'
          }
 
+          stage('Unit Testing') {
+              steps {
+                     sh 'mvn test'
 
-                 stage('Maven Clean') {
+
+
+
+
+                     }
+                 stage('Maven Build') {
                      steps {
                          sh 'mvn clean install'
                      }
                  }
 
 
-                 stage('Unit Testing') {
-                     steps {
-                         sh 'mvn test'
 
-
-
-
-
-                     }
                  }
-               
+
                  }
     }
 }}
