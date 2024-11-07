@@ -9,25 +9,22 @@ pipeline{
 
                  stage('Maven Clean') {
                      steps {
-                         sh 'mvn clean'
+                         sh 'mvn clean install'
                      }
                  }
 
 
                  stage('Unit Testing') {
                      steps {
-                         sh 'mvn test -Dspring.profiles.active=test'
-                        junit 'target/surefire-reports/*.xml'
+                         sh 'mvn test'
+
 
 
 
 
                      }
                  }
-                 stage('Maven Compile') {
-                     steps {
-                         sh 'mvn compile'
-                     }
+               
                  }
     }
 }}
