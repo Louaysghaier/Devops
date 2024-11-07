@@ -16,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-public class ChambreServiceIntegrationTest {
+public class ChamberJunitTest {
 
     @Autowired
     private IChambreService chambreService;
@@ -106,5 +106,10 @@ public class ChambreServiceIntegrationTest {
 
 
 
-   
+
+    @AfterAll
+    public static void cleanUp(@Autowired IChambreService chambreService, @Autowired BlocRepository blocRepository) {
+        chambreService.retrieveAllChambres().forEach(chambre -> chambreService.updateChambre(chambre));
+        blocRepository.deleteAll();
+    }
 }
