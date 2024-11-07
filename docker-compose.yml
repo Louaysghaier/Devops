@@ -17,8 +17,7 @@ services:
     depends_on:
       - db
     restart: on-failure
-    networks:
-      - my-network
+    
   
   db:
     container_name: db
