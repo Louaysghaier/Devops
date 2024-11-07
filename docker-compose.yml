@@ -1,7 +1,7 @@
-version: '3.8'
 
 services:
-  app:
+  backend-spring:
+    container_name: backend-spring
     image: docker.io/louay01/tpfoyer-app:latest
     build:
       context: .
@@ -17,8 +17,13 @@ services:
       - "8082:8082"
     depends_on:
       - db
+    restart: on-failure
+    networks:
+      - my-network
+  
 
   db:
+    container_name: db
     image: mysql:8.0
     restart: unless-stopped
     environment:
