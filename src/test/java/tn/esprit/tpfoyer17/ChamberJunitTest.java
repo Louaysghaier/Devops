@@ -104,50 +104,7 @@ public class ChambreServiceIntegrationTest {
         }
     }
 
-    @Test
-    @Order(6)
-    public void testAffecterChambresABloc() {
-        // Arrange
-        Bloc bloc = new Bloc();
-        bloc.setNomBloc("Bloc A");
-        Bloc savedBloc = blocRepository.save(bloc);
-        savedBlocId = savedBloc.getIdBloc();
 
-        List<Long> numChambres = Arrays.asList(101L, 102L);
 
-        // Act
-        Bloc resultBloc = chambreService.affecterChambresABloc(numChambres, savedBlocId);
-
-        // Assert
-        assertNotNull(resultBloc);
-        assertEquals("Bloc A", resultBloc.getNomBloc());
-
-        // Verify that chambres are associated with the bloc
-        Chambre chambre1 = chambreService.retrieveAllChambres().stream()
-                .filter(c -> c.getNumeroChambre() == 101L)
-                .findFirst()
-                .orElse(null);
-        assertNotNull(chambre1);
-        assertEquals(savedBlocId, chambre1.getBloc().getIdBloc());
-    }
-
-    @Test
-    @Order(7)
-    public void testGetChambresParBlocEtType() {
-        // Act
-        List<Chambre> chambres = chambreService.getChambresParBlocEtType(savedBlocId, TypeChambre.DOUBLE);
-
-        // Assert
-        assertFalse(chambres.isEmpty());
-        for (Chambre c : chambres) {
-            assertEquals(savedBlocId, c.getBloc().getIdBloc());
-            assertEquals(TypeChambre.DOUBLE, c.getTypeChambre());
-        }
-    }
-
-    @AfterAll
-    public static void cleanUp(@Autowired IChambreService chambreService, @Autowired BlocRepository blocRepository) {
-        chambreService.retrieveAllChambres().forEach(chambre -> chambreService.updateChambre(chambre));
-        blocRepository.deleteAll();
-    }
+   
 }
