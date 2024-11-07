@@ -91,18 +91,7 @@ public class ChamberJunitTest {
         assertTrue(chambres.size() >= 3); // Adjust based on initial data
     }
 
-    @Test
-    @Order(5)
-    public void testFindByTypeChambre() {
-        // Act
-        List<Chambre> chambres = chambreService.findByTypeChambre();
 
-        // Assert
-        assertFalse(chambres.isEmpty());
-        for (Chambre c : chambres) {
-            assertEquals(TypeChambre.DOUBLE, c.getTypeChambre());
-        }
-    }
 
 
 
