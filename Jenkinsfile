@@ -37,6 +37,12 @@ pipeline{
 
                }
         }}
-
+    stage('upload war file to nexus'){
+      steps{
+      script{
+      nexusArtifactUploader artifacts: [[artifactId: 'tpFoyer-17', classifier: '', file: 'target/tpFoyer-17.jar', type: 'jar']], credentialsId: 'nexus-auth', groupId: 'tn.esprit', nexusUrl: '192.168.1.178:8081', nexusVersion: 'nexus3', protocol: 'http', repository: 'tpfoyer', version: '1.0.0'
+      }
+      }
+    }
     }
 }
