@@ -6,6 +6,7 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.io.Serializable;
+import java.util.HashSet;
 import java.util.Set;
 
 @Entity
@@ -27,16 +28,15 @@ public class Foyer implements Serializable {
 
     long capaciteFoyer;
 
+    @OneToOne(mappedBy = "foyer", cascade = CascadeType.REMOVE)
     @ToString.Exclude
     @JsonIgnore
-    @OneToOne(mappedBy = "foyer")
-    Universite universite;
+    private Universite universite;
+
 
     @ToString.Exclude
     //@JsonIgnore
     @OneToMany(mappedBy = "foyer", cascade = CascadeType.ALL)
-    Set<Bloc> blocs;
-
-
+    Set<Bloc> blocs ;
 
 }
