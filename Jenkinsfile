@@ -70,6 +70,9 @@ pipeline {
               script {
                   echo "Fetching the latest version of ${ARTIFACT_ID} from Nexus..."
                   sh '''
+                       # Install xmllint if not already available
+                        sudo apt-get update && sudo apt-get install -y libxml2-utils
+
                       # Vérifier le contenu du fichier maven-metadata.xml
                       echo "Fetching maven-metadata.xml..."
                       curl -u ${NEXUS_USER}:${NEXUS_PASSWORD} -s ${NEXUS_URL}${GROUP_ID}/${ARTIFACT_ID}/maven-metadata.xml
