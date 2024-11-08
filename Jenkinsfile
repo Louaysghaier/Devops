@@ -3,8 +3,8 @@ pipeline {
 
     environment {
         SONARQUBE_SERVER = 'http://192.168.1.16:9000/'  // Update with your SonarQube server URL
-                SONARQUBE_TOKEN = credentials('sonar-api')  // Use the credentials ID you set for SonarQube token
-                SONAR_PROJECT_KEY = 'tn.esprit' // Replace with your actual project key
+        SONARQUBE_TOKEN = credentials('sonar-api')  // Use the credentials ID you set for SonarQube token
+        SONAR_PROJECT_KEY = 'tn.esprit' // Replace with your actual project key
         NEXUS_URL = "http://192.168.1.16:8081/repository/maven-releases/"
         NEXUS_USER = credentials('nexus')
         NEXUS_PASSWORD = credentials('nexus')
@@ -13,6 +13,9 @@ pipeline {
         DOCKER_HUB_CREDENTIAL = credentials('docker')
         DOCKER_IMAGE_NAME = "myapp"  // Name of the Docker image
         DOCKER_TAG = "latest"  // Image tag
+                DOCKER_REGISTRY = 'docker.io'  // Docker Hub registry
+
+
     }
 
     stages {
@@ -70,9 +73,5 @@ pipeline {
         }
     }
 
-    post {
-        always {
-            cleanWs()  // Clean workspace after execution
-        }
-    }
+
 }
