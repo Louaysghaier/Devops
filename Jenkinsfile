@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        NEXUS_URL = "http://192.168.1.178:8081/repository/maven-releases/"
+        NEXUS_URL = "http://192.168.0.55:8081/repository/maven-releases/"
         NEXUS_USER = credentials('nexus')
         NEXUS_PASSWORD = credentials('nexus')
         GROUP_ID = "tn/esprit"
@@ -58,7 +58,7 @@ pipeline {
                    [artifactId: 'tpFoyer-17', classifier: '',
                     file: 'target/tpFoyer-17.jar', type: 'jar']],
                      credentialsId: 'nexus', groupId: 'tn.esprit',
-                     nexusUrl: '192.168.1.178:8081', nexusVersion: 'nexus3',
+                     nexusUrl: '192.168.0.55:8081', nexusVersion: 'nexus3',
                       protocol: 'http', repository: 'maven-releases', version: "${readPomVersion.version}"
 
                 }
