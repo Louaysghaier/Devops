@@ -50,20 +50,17 @@ pipeline {
             }
         }
 
-        stage('Upload JAR File to Nexus') {
-            steps {
-                script {
-                    def readPomVersion = readMavenPom file: 'pom.xml'
-                   nexusArtifactUploader artifacts: [
-                   [artifactId: 'tpFoyer-17', classifier: '',
-                    file: 'target/tpFoyer-17.jar', type: 'jar']],
-                     credentialsId: 'nexus', groupId: 'tn.esprit',
-                     nexusUrl: '192.168.0.55:8081', nexusVersion: 'nexus3',
-                      protocol: 'http', repository: 'maven-releases', version: "${readPomVersion.version}"
-
+        stage('Deploy to Nexus') {
+                     steps {
+                        withCredentials([usernamePassword(credentialsId: 'nexus', usernameVariable: 'NEXUS_USER', passwordVariable: 'NEXUS_PASSWORD')]) {
+                            sh """
+                                mvn deploy -DskipTests \
+                                -DaltDeploymentRepository=deploymentRepo::default::${NEXUS_URL} \
+                                -Dusername=${NEXUS_USER} -Dpassword=${NEXUS_PASSWORD}
+                            """
+                        }
+                    }
                 }
-            }
-        }
 
       stage('Fetch JAR from Nexus') {
           steps {
