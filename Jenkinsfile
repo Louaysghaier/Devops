@@ -2,6 +2,9 @@ pipeline {
     agent any
 
     environment {
+        SONARQUBE_SERVER = 'http://192.168.1.16:9000/'  // Update with your SonarQube server URL
+                SONARQUBE_TOKEN = credentials('sonar-api')  // Use the credentials ID you set for SonarQube token
+                SONAR_PROJECT_KEY = 'tn.esprit' // Replace with your actual project key
         NEXUS_URL = "http://192.168.1.16:8081/repository/maven-releases/"
         NEXUS_USER = credentials('nexus')
         NEXUS_PASSWORD = credentials('nexus')
@@ -33,15 +36,14 @@ pipeline {
             }
         }
 
-        stage('SonarQube Analysis') {
-            steps {
-                script {
-                    withSonarQubeEnv('sonar-api') {
-                        sh 'mvn clean package sonar:sonar'
+         stage('SonarQube Analysis with JaCoCo') {
+                    steps {
+
+                            // Run Sonar analysis using the token
+                        sh "mvn sonar:sonar -Dsonar.projectKey=${SONAR_PROJECT_KEY} -Dsonar.host.url=${SONARQUBE_SERVER} -Dsonar.login=${SONARQUBE_TOKEN} -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml"
+
                     }
                 }
-            }
-        }
 
         stage('Deploy to Nexus') {
             steps {
