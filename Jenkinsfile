@@ -65,42 +65,58 @@ pipeline {
             }
         }
 
-       stage('Fetch JAR from Nexus') {
-           steps {
-               script {
-                   echo "Fetching the latest version of ${ARTIFACT_ID} from Nexus..."
-                   sh '''
-                       # Get the latest version from maven-metadata.xml using grep instead of xmllint
-                       LATEST_VERSION=$(curl -u ${NEXUS_USER}:${NEXUS_PASSWORD} -s ${NEXUS_URL}${GROUP_ID}/${ARTIFACT_ID}/maven-metadata.xml | grep -oPm1 "(?<=<latest>)[^<]+")
-                       echo "Latest version: ${LATEST_VERSION}"
+      stage('Fetch JAR from Nexus') {
+          steps {
+              script {
+                  echo "Fetching the latest version of ${ARTIFACT_ID} from Nexus..."
+                  sh '''
+                      # Vérifier le contenu du fichier maven-metadata.xml
+                      echo "Fetching maven-metadata.xml..."
+                      curl -u ${NEXUS_USER}:${NEXUS_PASSWORD} -s ${NEXUS_URL}${GROUP_ID}/${ARTIFACT_ID}/maven-metadata.xml
 
-                       # Download the latest JAR file
-                       JAR_FILE="${ARTIFACT_ID}-${LATEST_VERSION}.jar"
-                       curl -u ${NEXUS_USER}:${NEXUS_PASSWORD} -O ${NEXUS_URL}${GROUP_ID}/${ARTIFACT_ID}/${LATEST_VERSION}/${JAR_FILE}
+                      # Extraire la version la plus récente avec xmllint
+                      LATEST_VERSION=$(curl -u ${NEXUS_USER}:${NEXUS_PASSWORD} -s ${NEXUS_URL}${GROUP_ID}/${ARTIFACT_ID}/maven-metadata.xml | xmllint --xpath "string(//metadata/versioning/latest)" -)
+                      echo "Latest version: ${LATEST_VERSION}"
 
-                       # Rename the JAR file for later steps
-                       mv ${JAR_FILE} app.jar
-                   '''
-               }
-           }
-       }
+                      # Vérifier si la version a été trouvée
+                      if [ -z "$LATEST_VERSION" ]; then
+                          echo "Error: Unable to fetch the latest version."
+                          exit 1
+                      fi
 
+                      # Télécharger le fichier JAR
+                      JAR_FILE="${ARTIFACT_ID}-${LATEST_VERSION}.jar"
+                      curl -u ${NEXUS_USER}:${NEXUS_PASSWORD} -O ${NEXUS_URL}${GROUP_ID}/${ARTIFACT_ID}/${LATEST_VERSION}/${JAR_FILE}
 
-        stage('Build Docker Image') {
-            steps {
-                script {
-                    echo "Building Docker image..."
-                    sh '''
-                        docker build -t ${DOCKER_IMAGE_NAME}:${DOCKER_TAG} .
-                    '''
-                }
-            }
-        }
-    }
+                      # Vérifier si le fichier JAR a été téléchargé avec succès
+                      if [ ! -f "$JAR_FILE" ]; then
+                          echo "Error: JAR file not found."
+                          exit 1
+                      fi
 
-    post {
-        always {
-            cleanWs()  // Nettoyer l'espace de travail après l'exécution
-        }
+                      # Renommer le fichier JAR pour les étapes suivantes
+                      mv ${JAR_FILE} app.jar
+                  '''
+              }
+          }
+      }
+
+      stage('Build Docker Image') {
+          steps {
+              script {
+                  echo "Building Docker image..."
+                  sh '''
+                      docker build -t ${DOCKER_IMAGE_NAME}:${DOCKER_TAG} .
+                  '''
+              }
+          }
+      }
+
+      post {
+          always {
+              cleanWs()  // Nettoyer l'espace de travail après l'exécution
+          }
+      }
+
     }
 }
