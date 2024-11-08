@@ -74,6 +74,12 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
+    <distributionManagement>
+        <repository>
+            <id>nexus</id>
+            <url>http://192.168.1.178:8081/repository/maven-releases/</url>
+        </repository>
+    </distributionManagement>
 
     <build>
         <finalName>tpFoyer-17</finalName>
