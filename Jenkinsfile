@@ -7,6 +7,7 @@ pipeline {
         NEXUS_PASSWORD = credentials('nexus')
         GROUP_ID = "tn/esprit"
         ARTIFACT_ID = "tpFoyer-17"
+         DOCKER_HUB_CREDENTIAL = credentials('docker')
         DOCKER_IMAGE_NAME = "myapp"  // Nom de l'image Docker
         DOCKER_TAG = "latest"  // Tag de l'image
     }
@@ -42,7 +43,7 @@ pipeline {
             }
         }
 
-        
+
         stage('Deploy to Nexus') {
                      steps {
                         withCredentials([usernamePassword(credentialsId: 'nexus', usernameVariable: 'NEXUS_USER', passwordVariable: 'NEXUS_PASSWORD')]) {
@@ -55,56 +56,17 @@ pipeline {
                     }
                 }
 
-      stage('Fetch JAR from Nexus') {
-          steps {
-              script {
-                  echo "Fetching the latest version of ${ARTIFACT_ID} from Nexus..."
-                  sh '''
-                       # Install xmllint if not already available
-                        sudo apt-get update && sudo apt-get install -y libxml2-utils
-
-                      # Vérifier le contenu du fichier maven-metadata.xml
-                      echo "Fetching maven-metadata.xml..."
-                      curl -u ${NEXUS_USER}:${NEXUS_PASSWORD} -s ${NEXUS_URL}${GROUP_ID}/${ARTIFACT_ID}/maven-metadata.xml
-
-                      # Extraire la version la plus récente avec xmllint
-                      LATEST_VERSION=$(curl -u ${NEXUS_USER}:${NEXUS_PASSWORD} -s ${NEXUS_URL}${GROUP_ID}/${ARTIFACT_ID}/maven-metadata.xml | xmllint --xpath "string(//metadata/versioning/latest)" -)
-                      echo "Latest version: ${LATEST_VERSION}"
-
-                      # Vérifier si la version a été trouvée
-                      if [ -z "$LATEST_VERSION" ]; then
-                          echo "Error: Unable to fetch the latest version."
-                          exit 1
-                      fi
-
-                      # Télécharger le fichier JAR
-                      JAR_FILE="${ARTIFACT_ID}-${LATEST_VERSION}.jar"
-                      curl -u ${NEXUS_USER}:${NEXUS_PASSWORD} -O ${NEXUS_URL}${GROUP_ID}/${ARTIFACT_ID}/${LATEST_VERSION}/${JAR_FILE}
-
-                      # Vérifier si le fichier JAR a été téléchargé avec succès
-                      if [ ! -f "$JAR_FILE" ]; then
-                          echo "Error: JAR file not found."
-                          exit 1
-                      fi
-
-                      # Renommer le fichier JAR pour les étapes suivantes
-                      mv ${JAR_FILE} app.jar
-                  '''
-              }
-          }
-      }
-
-      stage('Build Docker Image') {
-          steps {
-              script {
-                  echo "Building Docker image..."
-                  sh '''
-                      docker build -t ${DOCKER_IMAGE_NAME}:${DOCKER_TAG} .
-                  '''
-              }
-          }
-      }
- }
+    stage('Build Docker Image From Nexus') {
+                steps {
+                    withCredentials([usernamePassword(credentialsId: 'nexus', usernameVariable: 'NEXUS_USER', passwordVariable: 'NEXUS_PASSWORD')]) {
+                        script {
+                            sh """
+                                docker build --build-arg NEXUS_USER=${NEXUS_USER} --build-arg NEXUS_PASSWORD=${NEXUS_PASSWORD} -t ${DOCKER_REGISTRY}/${DOCKER_HUB_CREDENTIAL_USR}/${DOCKER_IMAGE_NAME}:${DOCKER_TAG} .
+                            """
+                        }
+                    }
+                }
+            }
       post {
           always {
               cleanWs()  // Nettoyer l'espace de travail après l'exécution
