@@ -42,14 +42,7 @@ pipeline {
             }
         }
 
-        stage('Quality Gate Status') {
-            steps {
-                script {
-                    waitForQualityGate abortPipeline: false, credentialsId: 'sonar-api'
-                }
-            }
-        }
-
+        
         stage('Deploy to Nexus') {
                      steps {
                         withCredentials([usernamePassword(credentialsId: 'nexus', usernameVariable: 'NEXUS_USER', passwordVariable: 'NEXUS_PASSWORD')]) {
