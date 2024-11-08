@@ -2,9 +2,9 @@ pipeline {
     agent any
 
     environment {
-        NEXUS_URL = "http://192.168.1.178:8081/repository/tpfoyer/"
-        NEXUS_USER = credentials('nexus-auth')
-        NEXUS_PASSWORD = credentials('nexus-auth')
+        NEXUS_URL = "http://192.168.1.178:8081/repository/maven-releases/"
+        NEXUS_USER = credentials('nexus')
+        NEXUS_PASSWORD = credentials('nexus')
         GROUP_ID = "tn/esprit"
         ARTIFACT_ID = "tpFoyer-17"
         DOCKER_IMAGE_NAME = "myapp"  // Nom de l'image Docker
@@ -54,12 +54,13 @@ pipeline {
             steps {
                 script {
                     def readPomVersion = readMavenPom file: 'pom.xml'
-                    nexusArtifactUploader artifacts: [
-                        [artifactId: 'tpFoyer-17', classifier: '', file: 'target/tpFoyer-17.jar', type: 'jar']
-                    ],
-                    credentialsId: 'nexus-auth', groupId: 'tn.esprit', nexusUrl: '192.168.1.178:8081',
-                    nexusVersion: 'nexus3', protocol: 'http', repository: 'tpfoyer',
-                    version: "${readPomVersion.version}"
+                   nexusArtifactUploader artifacts: [
+                   [artifactId: 'tpFoyer-17', classifier: '',
+                    file: 'target/tpFoyer-17.jar', type: 'jar']],
+                     credentialsId: 'nexus', groupId: 'tn.esprit',
+                     nexusUrl: '192.168.1.178:8081', nexusVersion: 'nexus3',
+                      protocol: 'http', repository: 'maven-releases', version: "${readPomVersion.version}"
+
                 }
             }
         }
