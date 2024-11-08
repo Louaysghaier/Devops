@@ -64,20 +64,26 @@ pipeline {
             }
         }
 
-        stage('Fetch JAR from Nexus') {
-            steps {
-                script {
-                    echo "Fetching the latest version of ${ARTIFACT_ID} from Nexus..."
-                    sh '''
-                        LATEST_VERSION=$(curl -u ${NEXUS_USER}:${NEXUS_PASSWORD} -s ${NEXUS_URL}${GROUP_ID}/${ARTIFACT_ID}/maven-metadata.xml | xmllint --xpath "string(//metadata/versioning/latest)" -)
-                        echo "Latest version: ${LATEST_VERSION}"
-                        JAR_FILE="${ARTIFACT_ID}-${LATEST_VERSION}.jar"
-                        curl -u ${NEXUS_USER}:${NEXUS_PASSWORD} -O ${NEXUS_URL}${GROUP_ID}/${ARTIFACT_ID}/${LATEST_VERSION}/${JAR_FILE}
-                        mv ${JAR_FILE} app.jar
-                    '''
-                }
-            }
-        }
+       stage('Fetch JAR from Nexus') {
+           steps {
+               script {
+                   echo "Fetching the latest version of ${ARTIFACT_ID} from Nexus..."
+                   sh '''
+                       # Get the latest version from maven-metadata.xml using grep instead of xmllint
+                       LATEST_VERSION=$(curl -u ${NEXUS_USER}:${NEXUS_PASSWORD} -s ${NEXUS_URL}${GROUP_ID}/${ARTIFACT_ID}/maven-metadata.xml | grep -oPm1 "(?<=<latest>)[^<]+")
+                       echo "Latest version: ${LATEST_VERSION}"
+
+                       # Download the latest JAR file
+                       JAR_FILE="${ARTIFACT_ID}-${LATEST_VERSION}.jar"
+                       curl -u ${NEXUS_USER}:${NEXUS_PASSWORD} -O ${NEXUS_URL}${GROUP_ID}/${ARTIFACT_ID}/${LATEST_VERSION}/${JAR_FILE}
+
+                       # Rename the JAR file for later steps
+                       mv ${JAR_FILE} app.jar
+                   '''
+               }
+           }
+       }
+
 
         stage('Build Docker Image') {
             steps {
