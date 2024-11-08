@@ -73,7 +73,7 @@ pipeline {
         }
            stage('Push Docker Image to Docker Hub') {
                     steps {
-                        withCredentials([usernamePassword(credentialsId: 'dockerHubCredential', usernameVariable: 'DOCKER_HUB_CREDENTIAL_USR', passwordVariable: 'DOCKER_HUB_CREDENTIAL_PSW')]) {
+                        withCredentials([usernamePassword(credentialsId: 'docker', usernameVariable: 'DOCKER_HUB_CREDENTIAL_USR', passwordVariable: 'DOCKER_HUB_CREDENTIAL_PSW')]) {
                             script {
                                 sh "echo ${DOCKER_HUB_CREDENTIAL_PSW} | docker login -u ${DOCKER_HUB_CREDENTIAL_USR} --password-stdin"
                                 sh "docker push ${DOCKER_REGISTRY}/${DOCKER_HUB_CREDENTIAL_USR}/${DOCKER_IMAGE_NAME}:${DOCKER_TAG}"
@@ -81,7 +81,7 @@ pipeline {
                         }
                     }
                 }
-               
+
 
 
 
