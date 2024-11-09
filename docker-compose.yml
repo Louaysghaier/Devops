@@ -18,6 +18,7 @@ services:
       - db
     restart: on-failure
 
+
   db:
     container_name: db
     image: mysql:8.0
@@ -30,6 +31,9 @@ services:
     volumes:
       - mysql-data:/var/lib/mysql
 
+
+
+
+
 volumes:
   mysql-data:
-
