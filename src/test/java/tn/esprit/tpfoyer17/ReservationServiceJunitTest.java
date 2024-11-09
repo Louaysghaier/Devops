@@ -39,7 +39,6 @@ class ReservationServiceTest {
     @Autowired
     private FoyerRepository foyerRepository;
 
-
     @Transactional
     @Order(1)
     @Test
