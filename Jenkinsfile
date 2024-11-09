@@ -93,14 +93,14 @@ pipeline {
             }
         }
 
-        // stage('Deploy with Docker Compose') {
-        //     steps {
-        //         script {
-        //             sh "docker compose -f ${DOCKER_COMPOSE_FILE} up -d db"
-        //             sleep 40
-        //             sh "docker compose -f ${DOCKER_COMPOSE_FILE} up -d"
-        //         }
-        //     }
-        //}
+        stage('Deploy with Docker Compose') {
+            steps {
+                script {
+                    sh "docker compose -f ${DOCKER_COMPOSE_FILE} up -d db"
+                    sleep 40
+                    sh "docker compose -f ${DOCKER_COMPOSE_FILE} up -d"
+                }
+            }
+        }
     }
 }
