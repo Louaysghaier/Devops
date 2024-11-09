@@ -3,3 +3,4 @@
 !/pom.xml
 !/Jenkinsfile
 !/Dockerfile
+!/docker-compose.yml
