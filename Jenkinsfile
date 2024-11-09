@@ -3,7 +3,7 @@ pipeline {
 
     environment {
         SONARQUBE_SERVER = 'http://192.168.1.16:9000/'  // Update with your SonarQube server URL
-        SONARQUBE_TOKEN = credentials('sonar-api')  // Use the credentials ID you set for SonarQube token
+        SONARQUBE_TOKEN = credentials('sonar-api')  // Use the credentials ID for SonarQube token
         SONAR_PROJECT_KEY = 'tn.esprit' // Replace with your actual project key
         NEXUS_URL = "http://192.168.1.16:8081/repository/maven-releases/"
         NEXUS_USER = credentials('nexus')
@@ -13,10 +13,8 @@ pipeline {
         DOCKER_HUB_CREDENTIAL = credentials('docker')
         DOCKER_IMAGE_NAME = "myapp"  // Name of the Docker image
         DOCKER_TAG = "latest"  // Image tag
-                DOCKER_REGISTRY = 'docker.io'
-                   DOCKER_COMPOSE_FILE = 'docker-compose.yml'// Docker Hub registry
-
-
+        DOCKER_REGISTRY = 'docker.io'
+        DOCKER_COMPOSE_FILE = 'docker-compose.yml' // Docker Compose file
     }
 
     stages {
@@ -40,14 +38,12 @@ pipeline {
             }
         }
 
-         stage('SonarQube Analysis with JaCoCo') {
-                    steps {
-
-                            // Run Sonar analysis using the token
-                        sh "mvn sonar:sonar -Dsonar.projectKey=${SONAR_PROJECT_KEY} -Dsonar.host.url=${SONARQUBE_SERVER} -Dsonar.login=${SONARQUBE_TOKEN} -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml"
-
-                    }
-                }
+        stage('SonarQube Analysis with JaCoCo') {
+            steps {
+                // Run Sonar analysis using the token
+                sh "mvn sonar:sonar -Dsonar.projectKey=${SONAR_PROJECT_KEY} -Dsonar.host.url=${SONARQUBE_SERVER} -Dsonar.login=${SONARQUBE_TOKEN} -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml"
+            }
+        }
 
         stage('Deploy to Nexus') {
             steps {
@@ -61,29 +57,26 @@ pipeline {
             }
         }
 
-         stage('Build Docker Image From Nexus') {
-                   steps {
-                       withCredentials([usernamePassword(credentialsId: 'nexus', usernameVariable: 'NEXUS_USER', passwordVariable: 'NEXUS_PASSWORD')]) {
-                           script {
-                               sh """
-                                   docker build --build-arg NEXUS_USER=${NEXUS_USER} --build-arg NEXUS_PASSWORD=${NEXUS_PASSWORD} -t ${DOCKER_REGISTRY}/${DOCKER_HUB_CREDENTIAL_USR}/${DOCKER_IMAGE_NAME}:${DOCKER_TAG} .
-                               """
-                    }
+        stage('Build Docker Image From Nexus') {
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'nexus', usernameVariable: 'NEXUS_USER', passwordVariable: 'NEXUS_PASSWORD')]) {
+                    sh """
+                        docker build --build-arg NEXUS_USER=${NEXUS_USER} --build-arg NEXUS_PASSWORD=${NEXUS_PASSWORD} -t ${DOCKER_REGISTRY}/${DOCKER_HUB_CREDENTIAL_USR}/${DOCKER_IMAGE_NAME}:${DOCKER_TAG} .
+                    """
                 }
             }
         }
-           stage('Push Docker Image to Docker Hub') {
-                    steps {
-                        withCredentials([usernamePassword(credentialsId: 'docker', usernameVariable: 'DOCKER_HUB_CREDENTIAL_USR', passwordVariable: 'DOCKER_HUB_CREDENTIAL_PSW')]) {
-                            script {
-                                sh "echo ${DOCKER_HUB_CREDENTIAL_PSW} | docker login -u ${DOCKER_HUB_CREDENTIAL_USR} --password-stdin"
-                                sh "docker push ${DOCKER_REGISTRY}/${DOCKER_HUB_CREDENTIAL_USR}/${DOCKER_IMAGE_NAME}:${DOCKER_TAG}"
-                            }
-                        }
-                    }
-                }
 
-stage('Check Running Containers') {
+        stage('Push Docker Image to Docker Hub') {
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'docker', usernameVariable: 'DOCKER_HUB_CREDENTIAL_USR', passwordVariable: 'DOCKER_HUB_CREDENTIAL_PSW')]) {
+                    sh "echo ${DOCKER_HUB_CREDENTIAL_PSW} | docker login -u ${DOCKER_HUB_CREDENTIAL_USR} --password-stdin"
+                    sh "docker push ${DOCKER_REGISTRY}/${DOCKER_HUB_CREDENTIAL_USR}/${DOCKER_IMAGE_NAME}:${DOCKER_TAG}"
+                }
+            }
+        }
+
+        stage('Check Running Containers') {
             steps {
                 script {
                     // List running containers
@@ -100,25 +93,14 @@ stage('Check Running Containers') {
             }
         }
 
-
-
-     stage('Deploy with DockerCompose') {
+        stage('Deploy with Docker Compose') {
             steps {
                 script {
-                     // sh "docker-compose -f docker-compose.yml pull app"
-                      sh "docker compose -f docker-compose.yml up -d db"
-                       sleep 40
-                      sh "docker compose -f docker-compose.yml up -d"
+                    sh "docker compose -f ${DOCKER_COMPOSE_FILE} up -d db"
+                    sleep 40
+                    sh "docker compose -f ${DOCKER_COMPOSE_FILE} up -d"
                 }
             }
         }
     }
-
-}
-
-
-
-    }
-
-
 }
