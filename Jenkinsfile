@@ -13,7 +13,8 @@ pipeline {
         DOCKER_HUB_CREDENTIAL = credentials('docker')
         DOCKER_IMAGE_NAME = "myapp"  // Name of the Docker image
         DOCKER_TAG = "latest"  // Image tag
-                DOCKER_REGISTRY = 'docker.io'  // Docker Hub registry
+                DOCKER_REGISTRY = 'docker.io'
+                   DOCKER_COMPOSE_FILE = 'docker-compose.yml'// Docker Hub registry
 
 
     }
@@ -82,6 +83,38 @@ pipeline {
                     }
                 }
 
+stage('Check Running Containers') {
+            steps {
+                script {
+                    // List running containers
+                    def runningContainers = sh(script: 'docker compose -f $DOCKER_COMPOSE_FILE ps', returnStdout: true).trim()
+
+                    if (runningContainers) {
+                        echo "The following containers are running:"
+                        echo "$runningContainers"
+                        sh 'docker compose -f $DOCKER_COMPOSE_FILE down'
+                    } else {
+                        echo "No containers are currently running."
+                    }
+                }
+            }
+        }
+
+
+
+     stage('Deploy with DockerCompose') {
+            steps {
+                script {
+                     // sh "docker-compose -f docker-compose.yml pull app"
+                      sh "docker compose -f docker-compose.yml up -d db"
+                       sleep 40
+                      sh "docker compose -f docker-compose.yml up -d"
+                }
+            }
+        }
+    }
+
+}
 
 
 
