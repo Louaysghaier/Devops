@@ -46,5 +46,11 @@ public class Chambre implements Serializable {
         return reservations.stream()
                 .mapToInt(reservation -> reservation.getEtudiants().size())
                 .sum();}
+    public Chambre(int idChambre, TypeChambre typeChambre,int etat, int capacite) {
+        this.idChambre = idChambre;
+        this.typeChambre = typeChambre;
+        this.numeroChambre= etat;
+        this.maxCapacity = capacite;
+    }
 
 }
