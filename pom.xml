@@ -10,7 +10,7 @@
     </parent>
     <groupId>tn.esprit</groupId>
     <artifactId>tpFoyer-17</artifactId>
-    <version>0.0.5</version>
+    <version>0.0.4</version>
     <name>tpFoyer-17</name>
     <description>tpFoyer-17</description>
     <properties>
@@ -71,7 +71,7 @@
     </distributionManagement>
     <build>
         <plugins>
-                  <plugin>
+            <plugin>
             <groupId>org.jacoco</groupId>
             <artifactId>jacoco-maven-plugin</artifactId>
             <version>0.8.8</version>
@@ -90,7 +90,6 @@
                 </execution>
             </executions>
         </plugin>
-
         <!-- Surefire plugin to run tests -->
         <plugin>
             <groupId>org.apache.maven.plugins</groupId>
@@ -102,6 +101,29 @@
                 </includes>
             </configuration>
         </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-deploy-plugin</artifactId>
+                <version>3.1.0</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>deploy-file</goal>
+                        </goals>
+                        <configuration>
+                            <file>${project.build.directory}/${project.build.finalName}.jar</file>
+                            <repositoryId>nexus-releases</repositoryId>
+                            <url>http://192.168.1.26:8081/repository/maven-releases/</url>
+                            <groupId>tn.esprit</groupId>
+                            <artifactId>tpFoyer-17</artifactId>
+                            <version>0.0.4</version>
+                            <packaging>jar</packaging>
+                            <generatePom>true</generatePom>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
