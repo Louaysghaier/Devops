@@ -1,7 +1,7 @@
 services:
   backend-spring:
     container_name: backend-spring
-    image: docker.io/dorra12/tpfoyer-app:latest
+    image: docker.io/iheb/tpfoyer-app:latest
     build:
       context: .
       args:
