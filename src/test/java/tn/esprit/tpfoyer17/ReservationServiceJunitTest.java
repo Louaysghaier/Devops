@@ -175,7 +175,6 @@ class ReservationServiceTest {
 
     @Order(5)
     @Test
-
     @Transactional
     void testAnnulerReservation() {
         // Step 1: Set up initial data

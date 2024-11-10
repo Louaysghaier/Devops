@@ -177,7 +177,8 @@ public class ReservationService implements IReservationService {
         }
         return null; // Ensure this is the fallback for invalid cases
     }
-    private void updateReservationValidity(Reservation reservation, Chambre chambre) {
+    @Transactional
+    public void updateReservationValidity(Reservation reservation, Chambre chambre) {
         switch (chambre.getTypeChambre()) {
             case SIMPLE -> reservation.setEstValide(false);
             case DOUBLE -> {
@@ -188,7 +189,24 @@ public class ReservationService implements IReservationService {
             }
         }
     }
-    private String generateId(String numeroChambre, String nomBloc) {
+
+    public String generateId(String numeroChambre, String nomBloc) {
         return numeroChambre + "-" + nomBloc + "-" + LocalDate.now().toString();
+    }
+    public boolean capaciteChambreMaximale(Chambre chambre) {
+        switch (chambre.getTypeChambre()) {
+            case SIMPLE -> {
+                return chambre.getReservations().size() < 2;
+            }
+            case DOUBLE -> {
+                return chambre.getReservations().size() < 3;
+            }
+            case TRIPLE -> {
+                return chambre.getReservations().size() < 4;
+            }
+            default -> {
+                return false;
+            }
+        }
     }
 }
