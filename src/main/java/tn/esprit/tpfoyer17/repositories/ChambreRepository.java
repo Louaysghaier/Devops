@@ -13,23 +13,8 @@ import java.util.List;
 
 @Repository
 public interface ChambreRepository extends CrudRepository<Chambre, Long> {
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    @Query("select c from Chambre c join Reservation r on (r member of c.reservations) where (c.bloc.idBloc = :idBloc and r.idReservation not like cast(year(current_date) as string)) order by c.idChambre limit 1")
+    Chambre getForReservation(long idBloc);
     List<Chambre> findByNumeroChambreIn(List<Long> numeroChambreList);
 
     List<Chambre> findByBlocIdBloc(Long idBloc);

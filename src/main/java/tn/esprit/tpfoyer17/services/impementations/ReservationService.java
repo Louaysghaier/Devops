@@ -1,212 +1,135 @@
 package tn.esprit.tpfoyer17.services.impementations;
 
-import jakarta.transaction.Transactional;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import tn.esprit.tpfoyer17.entities.Bloc;
 import tn.esprit.tpfoyer17.entities.Chambre;
 import tn.esprit.tpfoyer17.entities.Etudiant;
 import tn.esprit.tpfoyer17.entities.Reservation;
 import tn.esprit.tpfoyer17.entities.enumerations.TypeChambre;
+import tn.esprit.tpfoyer17.repositories.BlocRepository;
 import tn.esprit.tpfoyer17.repositories.ChambreRepository;
 import tn.esprit.tpfoyer17.repositories.EtudiantRepository;
 import tn.esprit.tpfoyer17.repositories.ReservationRepository;
-import tn.esprit.tpfoyer17.repositories.UniversiteRepository;
 import tn.esprit.tpfoyer17.services.interfaces.IReservationService;
 
-import java.time.LocalDate;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.time.Year;
+import java.util.*;
 
 @Service
 @AllArgsConstructor
 @Slf4j
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class ReservationService implements IReservationService {
-    public ReservationRepository reservationRepository;
+    ReservationRepository reservationRepository;
     EtudiantRepository etudiantRepository;
     ChambreRepository chambreRepository;
-    UniversiteRepository universiteRepository;
+    BlocRepository blocRepository;
+
+
 
     @Override
-    public List<Reservation> retrieveAllReservation() {
+    public List<Reservation> getAllReservations() {
         return (List<Reservation>) reservationRepository.findAll();
     }
 
     @Override
-    public Reservation updateReservation(Reservation res) {
-        return reservationRepository.save(res);
+    public Reservation getReservationById(String idReservation) {
+        Optional<Reservation> reservationOptional = reservationRepository.findById(idReservation);
+        if (reservationOptional.isPresent()) {
+            return reservationOptional.get();
+        } else {
+            throw new NoSuchElementException("Reservation with ID " + idReservation + " not found.");
+        }
     }
 
     @Override
-    public Reservation retrieveReservation(String idReservation) {
-        return reservationRepository.findById(idReservation).orElse(null);
+    public List<Reservation> deleteReservation(String idReservation) {
+        reservationRepository.deleteById(idReservation);
 
-    }
-
-    public Reservation annulerReservation(long cinEtudiant) {
-        Etudiant etudiant = etudiantRepository.findByCinEtudiant(cinEtudiant);
-        if (etudiant == null) {
-            throw new IllegalArgumentException("Etudiant not found");
-        }
-
-        Set<Reservation> reservationList = etudiant.getReservations();
-        for (Reservation reservation : reservationList) {
-            reservation.getEtudiants().remove(etudiant);
-            reservationRepository.save(reservation);
-
-            Chambre chambre = chambreRepository.findByReservationsIdReservation(reservation.getIdReservation());
-            if (chambre != null) { // Check if chambre is not null
-                chambre.getReservations().remove(reservation);
-
-                // Check for TypeChambre before switching
-                TypeChambre typeChambre = chambre.getTypeChambre();
-                if (typeChambre != null) { // Ensure typeChambre is not null
-                    switch (typeChambre) {
-                        case SIMPLE -> reservation.setEstValide(true);
-                        case DOUBLE -> {
-                            if (reservation.getEtudiants().size() == 2) {
-                                reservation.setEstValide(true);
-                            }
-                        }
-                        case TRIPLE -> {
-                            if (reservation.getEtudiants().size() == 3) {
-                                reservation.setEstValide(true);
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        // Return the last processed reservation or a status message, as needed
-        return reservationList.isEmpty() ? null : reservationList.iterator().next(); // or return a meaningful result
+        return null;
     }
 
     @Override
-    public List<Reservation> getReservationParAnneeUniversitaireEtNomUniversite(LocalDate anneeUniversite, String nomUniversite) {
-        return reservationRepository.recupererParBlocEtTypeChambre(nomUniversite, anneeUniversite);
-    }
-
-    @Override
-    public List<Reservation> getReservationParAnneeUniversitaireEtNomUniversiteKeyWord(LocalDate anneeUniversite, String nomUniversite) {
-        return universiteRepository.findByFoyerBlocsChambresReservationsAnneeUniversitaireAndNomUniversite(anneeUniversite, nomUniversite);
-    }
-
-    /*@Transactional
-    public Reservation ajouterReservation(long idChambre, long cinEtudiant) {
-        Etudiant etudiant = etudiantRepository.findByCinEtudiant(cinEtudiant);
-        Chambre chambre = chambreRepository.findById(idChambre).orElse(null);
-
-        assert chambre != null;
-        String numReservation = generateId(chambre.getNumeroChambre(),
-                chambre.getBloc().getNomBloc());
-
-        Reservation reservation = reservationRepository.findById(numReservation).orElse(
-                Reservation.builder()
-                        .idReservation(numReservation)
-                        .etudiants(new HashSet<>())
-                        .anneeUniversitaire(LocalDate.now())
-                        .estValide(true)
-                        .build());
-
-
-        //Vérifier capacité maximale de la chambre
-        if (reservation.isEstValide() && (capaciteChambreMaximale(chambre))) {
-            chambre.getReservations().add(reservation);
-            reservation.getEtudiants().add(etudiant);
-            reservationRepository.save(reservation);
-        }
-
-        switch (chambre.getTypeChambre()) {
-            case SIMPLE -> reservation.setEstValide(false);
-            case DOUBLE -> {
-                if (reservation.getEtudiants().size() == 2) reservation.setEstValide(false);
-            }
-            case TRIPLE -> {
-                if (reservation.getEtudiants().size() == 3) reservation.setEstValide(false);
-            }
-        }
+    public Reservation updateReservation(Reservation reservation) {
         return reservationRepository.save(reservation);
-
     }
 
+    @Override
+    public Reservation ajouterReservation(long idBloc, long cinEtudiant) {
+        // Retrieve reservation if it already exists
+        Reservation existingReservation = reservationRepository.findForReservation(idBloc);
 
-    private String generateId(long numChambre, String nomBloc) {
-        return numChambre + "-" + nomBloc + "-" + LocalDate.now().getYear();
-    }
+        if (existingReservation != null) {
+            existingReservation.getEtudiants().add(etudiantRepository.findByCinEtudiant(cinEtudiant));
+            Chambre chambre = chambreRepository.findByReservationsIdReservation(existingReservation.getIdReservation());
 
-    private boolean capaciteChambreMaximale(Chambre chambre) {
-        switch (chambre.getTypeChambre()) {
-            case SIMPLE -> {
-                return chambre.getReservations().size() < 2;
+            switch (chambre.getTypeChambre()) {
+                case TRIPLE:
+                    if (existingReservation.getEtudiants().size() == 3) {
+                        existingReservation.setEstValide(false);
+                    }
+                    break;
+                case DOUBLE:
+                    if (existingReservation.getEtudiants().size() == 2) {
+                        existingReservation.setEstValide(false);
+                    }
+                    break;
+                case SIMPLE:
+                    if (existingReservation.getEtudiants().size() > 1) {
+                        existingReservation.setEstValide(false);
+                    }
+                    break;
+                default:
+                    existingReservation.setEstValide(false);
+                    break;
             }
-            case DOUBLE -> {
-                return chambre.getReservations().size() < 3;
-            }
-            case TRIPLE -> {
-                return chambre.getReservations().size() < 4;
-            }
-            default -> {
-                return false;
-            }
+            return reservationRepository.save(existingReservation);
+        } else {
+            // If no reservation exists, create a new one
+            List<Etudiant> etudiants = new ArrayList<>();
+            etudiants.add(etudiantRepository.findByCinEtudiant(cinEtudiant));
+            Set<Etudiant> etudiantsSet = new HashSet<>(etudiants);
+
+            Reservation reservation = Reservation.builder()
+                    .anneeUniversitaire(new Date())
+                    .etudiants(etudiantsSet)
+                    .build();
+
+            Chambre chambre = chambreRepository.getForReservation(idBloc);
+            Bloc bloc = blocRepository.findById(idBloc)
+                    .orElseThrow(() -> new EntityNotFoundException("Bloc with ID " + idBloc + " not found"));
+
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTime(new Date());
+            String idReservation = chambre.getIdChambre() + bloc.getNomBloc() + calendar.get(Calendar.YEAR);
+            reservation.setIdReservation(idReservation);
+
+            reservation.setEstValide(chambre.getTypeChambre() != TypeChambre.SIMPLE);
+
+            return reservationRepository.save(reservation);
         }
     }
 
-*/
-    @Transactional
-    public Reservation ajouterReservation(long idChambre, long cinEtudiant) {
-        Optional<Chambre> optionalChambre = chambreRepository.findById(idChambre);
+
+    @Override
+    public Reservation annulerReservation(long cinEtudiant) {
+        Reservation reservation = reservationRepository.findByEtudiantsCinEtudiantAndAnneeUniversitaire(cinEtudiant, Year.now().getValue());
         Etudiant etudiant = etudiantRepository.findByCinEtudiant(cinEtudiant);
-
-        if (optionalChambre.isPresent() && etudiant != null) {
-            Chambre chambre = optionalChambre.get();
-            // Check if there's space in the chambre
-            if (chambre.getCurrentOccupants() < chambre.getMaxCapacity()) {
-                // Create and save the reservation
-                Reservation reservation = new Reservation();
-                reservation.setChambre(chambre);
-                reservation.setEtudiants((Set<Etudiant>) etudiant);
-                // Save reservation to the repository
-                reservationRepository.save(reservation);
-                return reservation; // Ensure this line is reached
-            }
-        }
-        return null; // Ensure this is the fallback for invalid cases
-    }
-    @Transactional
-    public void updateReservationValidity(Reservation reservation, Chambre chambre) {
-        switch (chambre.getTypeChambre()) {
-            case SIMPLE -> reservation.setEstValide(false);
-            case DOUBLE -> {
-                if (reservation.getEtudiants().size() == 2) reservation.setEstValide(false);
-            }
-            case TRIPLE -> {
-                if (reservation.getEtudiants().size() == 3) reservation.setEstValide(false);
-            }
-        }
+        reservation.getEtudiants().remove(etudiant);
+        reservation.setEstValide(true);
+        return reservationRepository.save(reservation);
     }
 
-    public String generateId(String numeroChambre, String nomBloc) {
-        return numeroChambre + "-" + nomBloc + "-" + LocalDate.now().toString();
-    }
-    public boolean capaciteChambreMaximale(Chambre chambre) {
-        switch (chambre.getTypeChambre()) {
-            case SIMPLE -> {
-                return chambre.getReservations().size() < 2;
-            }
-            case DOUBLE -> {
-                return chambre.getReservations().size() < 3;
-            }
-            case TRIPLE -> {
-                return chambre.getReservations().size() < 4;
-            }
-            default -> {
-                return false;
-            }
-        }
+    @Override
+    public List<Reservation> getReservationParAnneeUniversitaireEtNomUniversite(Date anneeUniversite, String nomUniversite) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(anneeUniversite);
+        return reservationRepository.findByAnneeUniversitaire_YearAndNomUnuiversite(calendar.get(Calendar.YEAR), nomUniversite);
+
     }
 }
