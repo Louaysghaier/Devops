@@ -1,4 +1,4 @@
-package tn.esprit.tpfoyer17.services.impementations;
+/* package tn.esprit.tpfoyer17;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -8,19 +8,4 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class ReservationServiceTest {
 
-    @BeforeEach
-    void setUp() {
-    }
-
-    @Test
-    void name() {
-    }
-
-    @AfterEach
-    void tearDown() {
-    }
-
-    @Test
-    void ajouterReservation() {
-    }
-}
+} */

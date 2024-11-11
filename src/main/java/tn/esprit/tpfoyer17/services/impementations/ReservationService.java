@@ -51,7 +51,7 @@ public class ReservationService implements IReservationService {
     public List<Reservation> deleteReservation(String idReservation) {
         reservationRepository.deleteById(idReservation);
 
-        return null;
+        return Collections.emptyList();
     }
 
     @Override

@@ -23,7 +23,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
-public class ReservationServiceMockitoTest {
+class ReservationServiceMockitoTest {
 
     @Mock
     private ReservationRepository reservationRepository;
@@ -46,7 +46,7 @@ public class ReservationServiceMockitoTest {
     }
 
     @Test
-    public void testGetAllReservations() {
+    void testGetAllReservations() {
         List<Reservation> mockReservations = new ArrayList<>();
         when(reservationRepository.findAll()).thenReturn(mockReservations);
 
@@ -57,7 +57,7 @@ public class ReservationServiceMockitoTest {
     }
 
     @Test
-    public void testGetReservationById() {
+    void testGetReservationById() {
         String idReservation = "123";
         Reservation mockReservation = new Reservation();
         when(reservationRepository.findById(idReservation)).thenReturn(Optional.of(mockReservation));
@@ -69,7 +69,7 @@ public class ReservationServiceMockitoTest {
     }
 
     @Test
-    public void testDeleteReservation() {
+    void testDeleteReservation() {
         String idReservation = "123";
 
         reservationService.deleteReservation(idReservation);
@@ -78,7 +78,7 @@ public class ReservationServiceMockitoTest {
     }
 
     @Test
-    public void testUpdateReservation() {
+    void testUpdateReservation() {
         Reservation reservation = new Reservation();
         when(reservationRepository.save(reservation)).thenReturn(reservation);
 
@@ -90,7 +90,7 @@ public class ReservationServiceMockitoTest {
 
     @ParameterizedTest
     @ValueSource(strings = { "TRIPLE", "DOUBLE", "SIMPLE" })
-    public void testAjouterReservationNew(String typeChambre) {
+    void testAjouterReservationNew(String typeChambre) {
         long idBloc = 1L;
         long cinEtudiant = 12345678L;
         Chambre mockChambre = new Chambre();
@@ -118,7 +118,7 @@ public class ReservationServiceMockitoTest {
             "SIMPLE, 2, false",
             "SIMPLE, 1, false"
     })
-    public void testAjouterReservationExisting(String typeChambre, int studentCount, boolean expectedValid) {
+    void testAjouterReservationExisting(String typeChambre, int studentCount, boolean expectedValid) {
         long idBloc = 1L;
         long cinEtudiant = 12345678L;
 
@@ -147,7 +147,7 @@ public class ReservationServiceMockitoTest {
     }
 
     @Test
-    public void testAnnulerReservation() {
+    void testAnnulerReservation() {
         long cinEtudiant = 12345678L;
         Reservation mockReservation = new Reservation();
         mockReservation.setEtudiants(new HashSet<>());
@@ -165,7 +165,7 @@ public class ReservationServiceMockitoTest {
     }
 
     @Test
-    public void testGetReservationParAnneeUniversitaireEtNomUniversite() {
+    void testGetReservationParAnneeUniversitaireEtNomUniversite() {
         Date anneeUniversite = new GregorianCalendar(2023, Calendar.JANUARY, 1).getTime();
         String nomUniversite = "Test University";
         List<Reservation> mockReservations = new ArrayList<>();
