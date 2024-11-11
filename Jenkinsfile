@@ -94,15 +94,19 @@ pipeline {
             }
         }
 
-        stage('Deploy with Docker Compose') {
-            steps {
-                script {
-                    sh "docker compose -f ${DOCKER_COMPOSE_FILE} up -d db --no-recreate"
-                               sleep 40
-                               // Start all other services without recreating existing ones
-                               sh "docker compose -f ${DOCKER_COMPOSE_FILE} up -d --no-recreate"
-                }
+    stage('Deploy with Docker Compose') {
+        steps {
+            script {
+                // Start the db service first
+                sh "docker compose -f ${DOCKER_COMPOSE_FILE} up -d db --no-recreate"
+                sleep 40
+                // Start the backend and prometheus services, but don't recreate Grafana
+                sh "docker compose -f ${DOCKER_COMPOSE_FILE} up -d backend-spring prometheus --no-recreate"
+                // Start Grafana without recreating the container
+                sh "docker compose -f ${DOCKER_COMPOSE_FILE} up -d grafana --no-recreate"
             }
         }
+    }
+
     }
 }
