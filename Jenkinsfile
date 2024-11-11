@@ -97,9 +97,10 @@ pipeline {
         stage('Deploy with Docker Compose') {
             steps {
                 script {
-                    sh "docker compose -f ${DOCKER_COMPOSE_FILE} up -d db"
-                    sleep 40
-                    sh "docker compose -f ${DOCKER_COMPOSE_FILE} up -d"
+                    sh "docker compose -f ${DOCKER_COMPOSE_FILE} up -d db --no-recreate"
+                               sleep 40
+                               // Start all other services without recreating existing ones
+                               sh "docker compose -f ${DOCKER_COMPOSE_FILE} up -d --no-recreate"
                 }
             }
         }
