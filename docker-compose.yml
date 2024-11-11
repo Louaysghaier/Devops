@@ -41,7 +41,7 @@ services:
     ports:
       - "9090:9090"
     networks:
-      - mynetwork
+      - network
 
   grafana:
       image: grafana/grafana:latest
@@ -52,7 +52,7 @@ services:
       ports:
         - "3000:3000"
       networks:
-        - mynetwork
+        - network
       volumes:
         - grafana-storage:/var/lib/grafana
 
