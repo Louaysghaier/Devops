@@ -34,30 +34,31 @@ services:
       - mysql-data:/var/lib/mysql
 
   prometheus:
-    image: prom/prometheus
+    image: prom/prometheus:latest
+    container_name: prometheus
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml  # Assurez-vous que prometheus.yml est au bon emplacement
     ports:
       - "9090:9090"
-    command:
-      - --config.file=/etc/prometheus/prometheus.yml
-    volumes:
-      - ./prometheus.yml:/etc/prometheus/prometheus.yml
-
-    depends_on:
-      - backend-spring
+    networks:
+      - mynetwork
 
   grafana:
-    image: grafana/grafana
-    container_name: grafana
-    ports:
-      - "3000:3000"
-    volumes:
-      - grafana:/var/lib/grafana
+      image: grafana/grafana:latest
+      container_name: grafana
+      environment:
+        - GF_SECURITY_ADMIN_USER=admin
+        - GF_SECURITY_ADMIN_PASSWORD=admin
+      ports:
+        - "3000:3000"
+      networks:
+        - mynetwork
+      volumes:
+        - grafana-storage:/var/lib/grafana
 
-    depends_on:
-      - prometheus
 
 
 
 volumes:
   mysql-data:
-  grafana:
+  grafana-storage:

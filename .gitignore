@@ -4,3 +4,4 @@
 !/Jenkinsfile
 !/Dockerfile
 !/docker-compose.yml
+!/prometheus.yml
