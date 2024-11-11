@@ -1,0 +1,20 @@
+version: '3.8'
+services:
+  jenkins:
+    image: jenkins/jenkins:lts
+    environment:
+      - JAVA_OPTS=-Djenkins.install.runSetupWizard=false
+    volumes:
+      - jenkins_home:/var/jenkins_home
+      - /var/run/docker.sock:/var/run/docker.sock
+    ports:
+      - "8080:8080"
+      - "50000:50000"
+    container_name: jenkins
+
+  trivy:
+    image: aquasec/trivy:latest
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /path/to/cache:/root/.cache
+    entrypoint: ["trivy"]

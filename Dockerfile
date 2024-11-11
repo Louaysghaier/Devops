@@ -1,4 +1,4 @@
-FROM openjdk:17
-WORKDIR /app
-ADD target/tpFoyer-17-0.0.5.jar /app.jar
-ENTRYPOINT ["java", "-jar", "/app.jar"]
+FROM openjdk:17-jdk-alpine
+EXPOSE 8082
+ADD target/tpFoyer-17-0.0.5.jar tpFoyer-17-0.0.5.jar
+ENTRYPOINT ["java","-jar","/tpFoyer-17-0.0.5.jar"]
