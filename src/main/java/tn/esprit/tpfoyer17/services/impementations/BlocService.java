@@ -22,7 +22,6 @@ public class BlocService implements IBlocService {
     public List<Bloc> retrieveBlocs() {
         return blocRepository.findAll();
     }
-
     @Override
     public Bloc updateBloc(Bloc bloc) {
         return blocRepository.save(bloc);
@@ -41,9 +40,7 @@ public class BlocService implements IBlocService {
     @Override
     public void removeBloc(long idBloc) {
         blocRepository.deleteById(idBloc);
-
     }
-
     @Override
     public List<Bloc> findByFoyerIdFoyer(long idFoyer) {
         return blocRepository.findByFoyerIdFoyer(idFoyer);

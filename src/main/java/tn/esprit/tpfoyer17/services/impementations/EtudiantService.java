@@ -42,9 +42,7 @@ public class EtudiantService implements IEtudiantService {
     @Override
     public void removeEtudiant(long idEtudiant) {
         etudiantRepository.deleteById(idEtudiant);
-
     }
-
     @Override
     public List<Etudiant> findByReservationsAnneeUniversitaire() {
         System.out.println((LocalDate.now()).getYear());

@@ -62,7 +62,6 @@ public class ChambreService implements IChambreService {
        }
         return bloc;
     }
-
     @Override
     public List<Chambre> getChambresParNomUniversite(String nomUniversite) {
         return chambreRepository.findByBlocFoyerUniversiteNomUniversiteLike(nomUniversite);

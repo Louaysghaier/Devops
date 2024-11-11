@@ -20,14 +20,11 @@ public class SpringDocConfig {
                 .description("TP étude de cas")
                 .contact(contactAPI());
     }
-
-
     public Contact contactAPI() {
         return new Contact().name("Equipe ASI II")
                 .email("chahnez.sardouk@esprit.tn")
                 .url("https://www.linkedin.com/in/**********/");
     }
-
     @Bean
     public GroupedOpenApi chambreApi() {
         return GroupedOpenApi.builder()

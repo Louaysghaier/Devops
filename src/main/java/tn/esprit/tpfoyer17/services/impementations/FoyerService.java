@@ -24,7 +24,6 @@ public class FoyerService implements IFoyerService {
     FoyerRepository foyerRepository;
     BlocRepository blocRepository;
     UniversiteRepository universiteRepository;
-
     @Override
     public List<Foyer> retrieveAllFoyers() {
         return (List<Foyer>) foyerRepository.findAll();
