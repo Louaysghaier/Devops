@@ -27,6 +27,7 @@ pipeline {
         stage('Unit Tests') {
             steps {
                 // Run unit tests, including those with Mockito
+                 sh 'mvn clean'
                 sh 'mvn test -Dspring.profiles.active=test'
                 junit 'target/surefire-reports/*.xml'  // Publish test results
             }
