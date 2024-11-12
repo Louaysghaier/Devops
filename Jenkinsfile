@@ -38,6 +38,12 @@ pipeline {
                 sh 'mvn compile'
             }
         }
+        stage('Run Tests') {
+            steps {
+                sh 'mvn clean test'
+            }
+        }
+
 
         stage('SonarQube Analysis with JaCoCo') {
             steps {

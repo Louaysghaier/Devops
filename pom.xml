@@ -110,7 +110,7 @@
                     </goals>
                 </execution>
                 <execution>
-                    <id>default-report</id>
+                    <phase>verify</phase>
                     <phase>prepare-package</phase>
                     <goals>
                         <goal>report</goal>
