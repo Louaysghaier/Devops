@@ -43,6 +43,8 @@ pipeline {
 
         stage('SonarQube Analysis with JaCoCo') {
             steps {
+            sh 'mvn clean install'
+
              sh 'ls -l target/site/jacoco/'
 
              sh "mvn sonar:sonar -Dsonar.projectKey=${SONAR_PROJECT_KEY} -Dsonar.host.url=${SONARQUBE_SERVER} -Dsonar.login=${SONARQUBE_TOKEN} -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml"
