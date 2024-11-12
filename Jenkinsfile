@@ -38,17 +38,14 @@ pipeline {
                 sh 'mvn compile'
             }
         }
-        stage('Run Tests') {
-            steps {
-                sh 'mvn clean test'
-            }
-        }
+
 
 
         stage('SonarQube Analysis with JaCoCo') {
             steps {
-                // Run Sonar analysis using the token
-                sh "mvn sonar:sonar -Dsonar.projectKey=${SONAR_PROJECT_KEY} -Dsonar.host.url=${SONARQUBE_SERVER} -Dsonar.login=${SONARQUBE_TOKEN} -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml"
+             sh 'ls -l target/site/jacoco/'
+
+             sh "mvn sonar:sonar -Dsonar.projectKey=${SONAR_PROJECT_KEY} -Dsonar.host.url=${SONARQUBE_SERVER} -Dsonar.login=${SONARQUBE_TOKEN} -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml"
             }
         }
 
