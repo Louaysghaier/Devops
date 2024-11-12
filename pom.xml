@@ -111,7 +111,7 @@
                 </execution>
                 <execution>
                     <phase>verify</phase>
-                    <phase>prepare-package</phase>
+                 
                     <goals>
                         <goal>report</goal>
                     </goals>
