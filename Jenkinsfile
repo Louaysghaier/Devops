@@ -104,7 +104,68 @@ pipeline {
                    }
                }
            }
+post {
+    success {
+        script {
+            emailext(
+                subject: "Build SUCCESS: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+                body: """
+                ✅ The build '${env.JOB_NAME}' #${env.BUILD_NUMBER} was successful!
 
+                🗂️ Git Branch: ${env.GIT_BRANCH}
+                🏷️ Maven Project: Compilation and testing passed.
+                📊 SonarQube Analysis: Completed successfully.
+                📦 Nexus Deployment: Artifacts deployed to ${NEXUS_URL}.
+                🐳 Docker Image: ${DOCKER_REGISTRY}/${DOCKER_HUB_CREDENTIAL_USR}/${DOCKER_IMAGE_NAME}:${DOCKER_TAG} pushed to Docker Hub.
+                🚀 Deployment: Docker containers deployed successfully.
+
+                🔗 Jenkins Build URL: ${env.BUILD_URL}
+                """,
+                to: 'louaysghaier01@gmail.com'
+            )
+        }
+    }
+    failure {
+        script {
+            emailext(
+                subject: "Build FAILURE: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+                body: """
+                ❌ The build '${env.JOB_NAME}' #${env.BUILD_NUMBER} has failed.
+
+                Check the following stages for potential issues:
+                - 🏗️ Maven build and tests
+                - 📊 SonarQube analysis
+                - 📦 Nexus deployment
+                - 🐳 Docker image build/push
+                - 🚀 Docker Compose deployment
+
+                Please review the Jenkins console output for more details:
+                🔗 Jenkins Build URL: ${env.BUILD_URL}
+                """,
+                to: 'louaysghaier01@gmail.com'
+            )
+        }
+    }
+    unstable {
+        script {
+            emailext(
+                subject: "Build UNSTABLE: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+                body: """
+                ⚠️ The build '${env.JOB_NAME}' #${env.BUILD_NUMBER} is unstable.
+
+                Some tests may have failed or quality gates may not have been met:
+                - 📊 SonarQube analysis might have issues.
+                - 📦 Nexus deployment may have encountered warnings.
+
+                Check the details here:
+                🔗 Jenkins Build URL: ${env.BUILD_URL}
+                """,
+                to: 'dorrajaidanee@gmail.com'
+            )
+        }
+    }
+
+}
 
     }
 }
