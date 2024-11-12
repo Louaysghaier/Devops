@@ -121,7 +121,7 @@ post {
 
                 🔗 Jenkins Build URL: ${env.BUILD_URL}
                 """,
-                to: 'louaysghaier01@gmail.com'
+                to: 'dorrajaidanee@gmail.com'
             )
         }
     }
@@ -142,7 +142,7 @@ post {
                 Please review the Jenkins console output for more details:
                 🔗 Jenkins Build URL: ${env.BUILD_URL}
                 """,
-                to: 'louaysghaier01@gmail.com'
+                to: 'dorrajaidanee@gmail.com'
             )
         }
     }
