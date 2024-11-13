@@ -60,5 +60,7 @@ services:
 volumes:
   mysql-data:
   grafana:
+  prometheus-data:
+
   
 
