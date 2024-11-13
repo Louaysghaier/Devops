@@ -14,8 +14,7 @@ services:
       SPRING_JPA_HIBERNATE_DDL_AUTO: update
     ports:
       - "8082:8082"
-    networks:
-      - mynetwork
+    
     depends_on:
       - db
     restart: on-failure
@@ -30,8 +29,7 @@ services:
       MYSQL_DATABASE: tpFoyer17
     ports:
       - "3306:3306"
-    networks:
-      - mynetwork
+    
     volumes:
       - mysql-data:/var/lib/mysql
 
@@ -39,10 +37,10 @@ services:
     image: prom/prometheus
     ports:
       - "9090:9090"
-     networks:
-      - mynetwork
+   
     volumes:
       - ./prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus-data:/prometheus
 
     depends_on:
       - backend-spring
@@ -52,8 +50,7 @@ services:
     container_name: grafana
     ports:
       - "3000:3000"
-    networks:
-      - mynetwork
+   
     volumes:
       - grafana:/var/lib/grafana
 
@@ -64,6 +61,4 @@ volumes:
   mysql-data:
   grafana:
   
-networks:
-  mynetwork:
-    driver: bridge
+
