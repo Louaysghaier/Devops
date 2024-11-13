@@ -1,7 +1,6 @@
-*/
-!/prometheus.yml
-!/Dockerfile
-!/pom.xml
+/*
 !/src
-!/docker-compose.yml
+!/pom.xml
 !/Jenkinsfile
+!/Dockerfile
+!/docker-compose.yml
