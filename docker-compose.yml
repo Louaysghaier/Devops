@@ -40,7 +40,7 @@ services:
     ports:
       - "9090:9090"
     networks:
-      - mynetwork
+      - host
     volumes:
       - ./prometheus.yml:/etc/prometheus/prometheus.yml
 
