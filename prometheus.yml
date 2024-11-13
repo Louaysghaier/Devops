@@ -6,3 +6,9 @@ scrape_configs:
     metrics_path: /prometheus
     static_configs:
       - targets: ['192.168.1.17:8080']  # Jenkins URL
+ scrape_configs:
+  - job_name: 'spring_boot_app' # You can name the job as you like
+    metrics_path: '/tpFoyer17/actuator/prometheus'
+    static_configs:
+      - targets: ['192.168.1.17:8082']
+     
