@@ -12,6 +12,7 @@ import tn.esprit.tpfoyer17.repositories.UniversiteRepository;
 import tn.esprit.tpfoyer17.services.interfaces.IUniversiteService;
 
 import java.util.List;
+import java.util.Objects;
 
 @Service
 @AllArgsConstructor
@@ -42,10 +43,12 @@ public class UniversiteService implements IUniversiteService {
 
 
     @Override
-    public Universite desaffecterFoyerAUniversite( long idUniversite) {
+    public Universite desaffecterFoyerAUniversite(long idUniversite) {
         Universite universite = universiteRepository.findById(idUniversite).orElse(null);
-        universite.setFoyer(null);
-        return  universiteRepository.save(universite);
+        if (universite != null) {
+            universite.setFoyer(null);
+        }
+        return  universiteRepository.save(Objects.requireNonNull(universite));
     }
 
     @Override
