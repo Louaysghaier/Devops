@@ -40,14 +40,7 @@ services:
       - /var/run/docker.sock
     entrypoint: ["trivy", "image", "--format", "json", "--cache-dir", "/root/.cache", "backend-spring"]  # Scan the backend-spring image
 
-  # Prometheus Monitoring Service
-  prometheus:
-    image: prom/prometheus:latest
-    container_name: prometheus
-    volumes:
-      - ./prometheus.yml:/etc/prometheus/prometheus.yml
-    ports:
-      - "9093:9092"
+ 
 
 # Volumes to persist data
 volumes:
