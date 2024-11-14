@@ -40,7 +40,7 @@ public class EtudiantServiceMock {
         etudiant1.setNomEtudiant("Doe");
         etudiant1.setPrenomEtudiant("John");
         etudiant1.setCinEtudiant(123456);
-        etudiant1.setDateNaissance(java.sql.Date.valueOf("2000-01-01"));
+      
 
         // Simuler la méthode saveAll du repository
         when(mockRepository.saveAll(anyList())).thenReturn(Arrays.asList(etudiant1));
@@ -70,14 +70,14 @@ public class EtudiantServiceMock {
         etudiantInitial.setCinEtudiant(123456);  // Assigner un CIN
         etudiantInitial.setNomEtudiant("Doe");
         etudiantInitial.setPrenomEtudiant("John");
-        etudiantInitial.setDateNaissance(java.sql.Date.valueOf("2000-01-01"));
+
 
         // Créer un étudiant mis à jour
         Etudiant etudiantUpdated = new Etudiant();
         etudiantUpdated.setCinEtudiant(123456);  // Assigner un CIN
         etudiantUpdated.setNomEtudiant("Smith");
         etudiantUpdated.setPrenomEtudiant("Jane");
-        etudiantUpdated.setDateNaissance(java.sql.Date.valueOf("2000-01-01"));
+       
 
         // Simuler la méthode save du repository pour retourner l'étudiant mis à jour
         when(mockRepository.save(any(Etudiant.class))).thenReturn(etudiantUpdated);
@@ -107,7 +107,7 @@ public class EtudiantServiceMock {
         etudiant.setCinEtudiant(123456);
         etudiant.setNomEtudiant("Doe");
         etudiant.setPrenomEtudiant("John");
-        etudiant.setDateNaissance(java.sql.Date.valueOf("2000-01-01"));
+
 
         // Simuler la méthode findById du repository pour retourner un étudiant
         when(mockRepository.findById(123456L)).thenReturn(Optional.of(etudiant));
