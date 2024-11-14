@@ -14,7 +14,7 @@ import java.util.List;
 @AllArgsConstructor
 @Slf4j
 @FieldDefaults(level = AccessLevel.PRIVATE)
-@CrossOrigin(origins = "http://192.168.1.17:4200")
+@CrossOrigin(origins = "*")
 
 @RequestMapping("api/blocs")
 
