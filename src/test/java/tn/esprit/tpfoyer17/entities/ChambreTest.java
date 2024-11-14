@@ -81,7 +81,8 @@ class ChambreTest {
         Chambre chambre = new Chambre();
         chambre.setNumeroChambre(101);
         chambre.setTypeChambre(TypeChambre.SIMPLE);
-        String expected = "Chambre(idChambre=0, numeroChambre=101, typeChambre=SINGLE)";
+        chambre.setMaxCapacity(2);
+        String expected = "Chambre(idChambre=0, numeroChambre=101, typeChambre=SIMPLE, maxCapacity=2)";
         assertEquals(expected, chambre.toString());
     }
 
