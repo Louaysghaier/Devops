@@ -30,7 +30,7 @@ public class Etudiant implements Serializable {
 
     long cinEtudiant;
 
-    Date dateNaissance;
+   // Date dateNaissance;
 
     @ToString.Exclude
     @ManyToMany(mappedBy = "etudiants")
