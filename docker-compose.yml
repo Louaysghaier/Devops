@@ -1,24 +1,60 @@
 services:
-  jenkins:
-    image: yassinechrigui/docker:tag001
+  # Backend Spring Service
+  backend-spring:
+    image: docker.io/yassinechrigui/docker:tag001
+    build:
+      context: .
+      args:
+        NEXUS_USER: "admin"
+        NEXUS_PASSWORD: "admin"
     environment:
-      - JAVA_OPTS=-Djenkins.install.runSetupWizard=false
-    volumes:
-      - jenkins_home:/var/jenkins_home
-      - /var/run/docker.sock:/var/run/docker.sock
+      SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/tpFoyer17?&createDatabaseIfNotExist=true&useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: ""
+      MYSQL_ROOT_PASSWORD: ""
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
     ports:
-      - "8080:8080"
-      - "50000:50000"
-    container_name: jenkins
+      - "8082:8082"
+    depends_on:
+      - db
+    restart: on-failure
 
+  # MySQL Database Service
+  db:
+    container_name: db
+    image: mysql:8.0
+    restart: unless-stopped
+    environment:
+      MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
+      MYSQL_DATABASE: tpFoyer17
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+
+  # Trivy Vulnerability Scanner
   trivy:
     image: aquasec/trivy:latest
+    container_name: trivy
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-      - trivy_cache:/root/.cache
-    entrypoint: ["trivy"]
+      - /var/run/docker.sock
+    entrypoint: ["trivy", "image", "--format", "json", "--cache-dir", "/root/.cache", "backend-spring"]  # Scan the backend-spring image
 
+  # Prometheus Monitoring Service
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+    ports:
+      - "9093:9092"
+
+# Volumes to persist data
 volumes:
-  jenkins_home:  # Defines the named volume for Jenkins data
-  trivy_cache:   # Defines the named volume for Trivy cache
+  jenkins_home:
+  mysql-data:
 
+# Optional networks for isolation (if needed)
+# networks:
+#   backend_network:
+#     driver: bridge
