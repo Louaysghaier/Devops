@@ -39,4 +39,6 @@ public class Reservation implements Serializable {
     @JsonIgnore
     private Set<Etudiant> etudiants = new HashSet<>(); // Initialize to avoid null
 
+    public Reservation(String idReservation, Date anneeUniversitaire, boolean estValide) {
+    }
 }
