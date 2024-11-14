@@ -18,6 +18,12 @@ import java.util.List;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @RequestMapping("api/reservations")
 public class ReservationController {
+
+
+    @GetMapping("/getAllReservations")
+    public List<Reservation> getAllReservations() {
+        return reservationService.getAllReservations();
+    }
     @GetMapping("/retrieveAllReservation/{id}")
     public List<Reservation> retrieveAllReservation(String id) {
         return reservationService.deleteReservation(id);

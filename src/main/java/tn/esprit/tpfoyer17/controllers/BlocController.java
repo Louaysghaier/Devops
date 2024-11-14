@@ -15,8 +15,6 @@ import java.util.List;
 @Slf4j
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @RequestMapping("api/blocs")
-
-
 public class BlocController {
     @GetMapping("/findByFoyerIdFoyer/{idFoyer}")
     public List<Bloc> findByFoyerIdFoyer(@PathVariable("idFoyer") long idFoyer) {
