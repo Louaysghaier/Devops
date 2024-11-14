@@ -64,7 +64,7 @@ services:
     image: docker.io/louay01/tpfoyer-angular:latest
     restart: unless-stopped
     ports:
-      - "4200:80"
+      - "4200:4200"
     networks:
       - mynetwork
     depends_on:
