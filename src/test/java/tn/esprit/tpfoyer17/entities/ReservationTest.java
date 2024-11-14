@@ -91,4 +91,20 @@ class ReservationTest {
         assertTrue(reservation.isEstValide());
         assertEquals(etudiants, reservation.getEtudiants());
     }
+
+    @Test
+    void testInitializeEtudiants() {
+        // Créer une nouvelle réservation avec des paramètres valides
+        Reservation reservation = new Reservation("id123", new Date(), true);
+
+        // Initialiser la collection d'étudiants
+        reservation.setEtudiants(new HashSet<>());
+
+        // Vérifier que la collection d'étudiants n'est pas nulle
+        assertNotNull(reservation.getEtudiants());
+
+        // Vérifier que la collection d'étudiants est vide après initialisation
+        assertTrue(reservation.getEtudiants().isEmpty());
+    }
+
 }
