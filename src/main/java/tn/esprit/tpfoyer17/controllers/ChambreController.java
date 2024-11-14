@@ -16,7 +16,7 @@ import java.util.List;
 @AllArgsConstructor
 @Slf4j
 @FieldDefaults(level = AccessLevel.PRIVATE)
-@RequestMapping("api/chambres") 
+@RequestMapping("/api/chambres") 
 @CrossOrigin(origins = "http://192.168.73.167:4200") 
 public class ChambreController {
     @GetMapping("/retrieveAllChambres")
