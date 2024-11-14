@@ -33,7 +33,7 @@ services:
     volumes:
       - mysql-data:/var/lib/mysql
       
-    angular-app:
+  angular-app:
     container_name: frontend-angular
     image: docker.io/dorra12/tpfoyer-angular:latest
     restart: unless-stopped
