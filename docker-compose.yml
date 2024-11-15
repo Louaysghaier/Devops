@@ -1,7 +1,7 @@
 services:
   # Backend Spring Service
   backend_foyer:
-    image: docker.io/yassinechrigui/yassinechrigui_5se2_gr4_foyer:001
+    image: docker.io/yassinechrigui/yassinechrigui_5se2_gr4_foyer:latest
     build:
       context: .
       args:
@@ -34,7 +34,7 @@ services:
 
   # Frontend Angular Service
   front_foyer:
-    image: yassinechrigui/yassinechrigui_gr4_5se2_foyer_front:a001
+    image: yassinechrigui/yassinechrigui_gr4_5se2_foyer_front:latest
     container_name: Front_Foyer
     ports:
       - "4200:80"
