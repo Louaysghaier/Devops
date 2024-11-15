@@ -1,6 +1,8 @@
+version: '3.8'
+
 services:
   # Backend Spring Service
-  backend-spring:
+  backend-foyer:
     image: docker.io/yassinechrigui/docker:tag001
     build:
       context: .
@@ -32,15 +34,16 @@ services:
     volumes:
       - mysql-data:/var/lib/mysql
 
-   Front_Foyer:
+  # Frontend Angular Service
+  front_foyer:
     image: YassineChrigui_Gr4_5SE2/Yassine
     container_name: Front_Foyer
     ports:
       - "4200:80"
     depends_on:
-      - backend_spring
+      - backend-spring
     networks:
-      - my-network      
+      - my-network
 
   # Trivy Vulnerability Scanner
   trivy:
@@ -48,16 +51,13 @@ services:
     container_name: trivy
     volumes:
       - /var/run/docker.sock
-    entrypoint: ["trivy", "image", "--format", "json", "--cache-dir", "/root/.cache", "backend-spring"]  # Scan the backend-spring image
-
- 
+    entrypoint: ["trivy", "image", "--format", "json", "--cache-dir", "/root/.cache", "backend-spring"]
 
 # Volumes to persist data
 volumes:
-  jenkins_home:
   mysql-data:
 
-# Optional networks for isolation (if needed)
-# networks:
-#   backend_network:
-#     driver: bridge
+# Optional networks for isolation
+networks:
+  my-network:
+    driver: bridge
