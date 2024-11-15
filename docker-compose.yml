@@ -1,9 +1,7 @@
-version: '3.8'
-
 services:
   # Backend Spring Service
-  backend-foyer:
-    image: docker.io/yassinechrigui/docker:tag001
+  backend_foyer:
+    image: docker.io/yassinechrigui/yassinechrigui_5se2_gr4_foyer:001
     build:
       context: .
       args:
@@ -36,7 +34,7 @@ services:
 
   # Frontend Angular Service
   front_foyer:
-    image: YassineChrigui_Gr4_5SE2/Yassine
+    image: yassinechrigui/yassinechrigui_gr4_5se2_foyer_front:a001
     container_name: Front_Foyer
     ports:
       - "4200:80"
@@ -51,7 +49,7 @@ services:
     container_name: trivy
     volumes:
       - /var/run/docker.sock
-    entrypoint: ["trivy", "image", "--format", "json", "--cache-dir", "/root/.cache", "backend-spring"]
+    entrypoint: ["trivy", "image", "--format", "json", "--cache-dir", "/root/.cache", "backend_foyer"]
 
 # Volumes to persist data
 volumes:
