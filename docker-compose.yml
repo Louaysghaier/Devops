@@ -1,7 +1,7 @@
 services:
   # Backend Spring Service
-  backend-spring:
-    image: docker.io/yassinechrigui/docker:tag001
+  backend_foyer:
+    image: docker.io/yassinechrigui/yassinechrigui_5se2_gr4_foyer:latest
     build:
       context: .
       args:
@@ -32,22 +32,30 @@ services:
     volumes:
       - mysql-data:/var/lib/mysql
 
+  # Frontend Angular Service
+  front_foyer:
+    image: yassinechrigui/yassinechrigui_gr4_5se2_foyer_front:latest
+    container_name: Front_Foyer
+    ports:
+      - "4200:80"
+    depends_on:
+      - backend_foyer
+    networks:
+      - my-network
+
   # Trivy Vulnerability Scanner
   trivy:
     image: aquasec/trivy:latest
     container_name: trivy
     volumes:
       - /var/run/docker.sock
-    entrypoint: ["trivy", "image", "--format", "json", "--cache-dir", "/root/.cache", "backend-spring"]  # Scan the backend-spring image
-
- 
+    entrypoint: ["trivy", "image", "--format", "json", "--cache-dir", "/root/.cache", "backend_foyer"]
 
 # Volumes to persist data
 volumes:
-  jenkins_home:
   mysql-data:
 
-# Optional networks for isolation (if needed)
-# networks:
-#   backend_network:
-#     driver: bridge
+# Optional networks for isolation
+networks:
+  my-network:
+    driver: bridge
