@@ -17,7 +17,7 @@ services:
       - db
 
   db:
-    image: mysql:8.0                          # Use MySQL 8.0 (or other compatible version)
+    image: mysql:5.7                          # Use MySQL 8.0 (or other compatible version)
     environment:
       MYSQL_ALLOW_EMPTY_PASSWORD: "yes"       # Allow MySQL to start without a password
       MYSQL_DATABASE: tpFoyer17               # Initial database name
