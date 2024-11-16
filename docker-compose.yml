@@ -32,16 +32,16 @@ services:
     volumes:
       - mysql-data:/var/lib/mysql
 
-  # Frontend Angular Service
-  #front_foyer:
-  #  image: yassinechrigui/yassinechrigui_gr4_5se2_foyer_front:latest
-   # container_name: Front_Foyer
-    #ports:
-     # - "4200:80"
-    #depends_on:
-     # - backend_foyer
-    #networks:
-     # - my-network
+   Frontend Angular Service
+  front_foyer:
+    image: yassinechrigui/yassinechrigui_gr4_5se2_foyer_front:latest
+    container_name: Front_Foyer
+    ports:
+      - "4200:80"
+    depends_on:
+      - backend_foyer
+    networks:
+      - my-network
 
   # Trivy Vulnerability Scanner
   trivy:
