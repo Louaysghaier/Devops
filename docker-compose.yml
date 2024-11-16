@@ -1,5 +1,4 @@
 services:
-  # Backend Spring Service
   backend_foyer:
     image: docker.io/yassinechrigui/yassinechrigui_5se2_gr4_foyer:latest
     build:
@@ -19,7 +18,6 @@ services:
       - db
     restart: on-failure
 
-  # MySQL Database Service
   db:
     container_name: db
     image: mysql:8.0
@@ -43,7 +41,6 @@ services:
     networks:
       - my-network
 
-  # Trivy Vulnerability Scanner
   trivy:
     image: aquasec/trivy:latest
     container_name: trivy
@@ -51,11 +48,9 @@ services:
       - /var/run/docker.sock
     entrypoint: ["trivy", "image", "--format", "json", "--cache-dir", "/root/.cache", "backend_foyer"]
 
-# Volumes to persist data
 volumes:
   mysql-data:
 
-# Optional networks for isolation
 networks:
   my-network:
     driver: bridge
